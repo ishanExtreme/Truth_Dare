@@ -4,9 +4,15 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
-import VideoPlayer from '../Components/VideoPlayer';
+import AssignmentIndOutlinedIcon from '@material-ui/icons/AssignmentIndOutlined';
+import ThreeSixtyIcon from '@material-ui/icons/ThreeSixty';
+import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
+import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
+
 import './home.css';
+import VideoPlayer from '../Components/VideoPlayer';
 
 const useStyles = makeStyles((theme)=>{
     return {
@@ -26,7 +32,9 @@ const useStyles = makeStyles((theme)=>{
         inviteText: {
             marginBottom: theme.spacing(2),
             
-        }
+        },
+
+        
     };
 });
 
@@ -110,6 +118,58 @@ function Home(props) {
                             <VideoPlayer />
                         </Grid>
 
+                        {/* Buttons */}
+                        <Grid item>    
+
+                            <Grid
+                            container
+                            direction="column"
+                            justify="space-between"
+                            alignItems="center"
+                            style={{height: '100%'}}
+                            >
+                                
+                                <Grid item>
+                                    <Button
+                                    variant="outlined" 
+                                    color="secondary"
+                                    size="large"
+                                    endIcon={<ThreeSixtyIcon />}
+                                    style={{marginTop: '100px'}}
+                                    >   
+                                    SPIN
+                                    </Button>
+                                </Grid>
+
+                                <Grid item>
+
+                                    <ButtonGroup>
+                                        <Button
+                                        variant="outlined" 
+                                        color="primary"
+                                        size="large"
+                                        endIcon={<AssignmentIndOutlinedIcon />}
+                                        >   
+                                        Give Task
+                                        </Button>
+
+                                        <Button
+                                        variant="outlined" 
+                                        color="primary"
+                                        size="large"
+                                        endIcon={<AssignmentTurnedInOutlinedIcon />}
+                                        >   
+                                        Task Done?
+                                        </Button>
+                                    </ButtonGroup>
+
+                                </Grid>
+
+                            </Grid>
+
+                        </Grid>
+                        {/* Button End */}
+
                         <Grid item>
                             <VideoPlayer />
                         </Grid>
@@ -125,6 +185,22 @@ function Home(props) {
                         <Grid item>
                             <VideoPlayer />
                         </Grid>
+
+                        {/* Buttons */}
+                        <Grid item>    
+                          
+                            <Button
+                            variant="outlined" 
+                            color="secondary"
+                            size="large"
+                            endIcon={< ExitToAppOutlinedIcon/>}
+                            style={{marginTop: '100px'}}
+                            >   
+                            Leave Room
+                            </Button>
+                                
+                        </Grid>
+                        {/* Button End */}
 
                         <Grid item>
                             <VideoPlayer />
