@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme)=> {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "black",
+        backgroundColor: "#212121",
     }
 }
 })

@@ -28,11 +28,7 @@ const useStyles = makeStyles((theme)=>{
             maxHeight: '450px',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#212121'
-        },
-        // remove it
-        constainer: {
-            padding: theme.spacing(20)
+            backgroundColor: '#424242'
         },
         screenIcon: {
             display: 'flex',
@@ -57,7 +53,6 @@ function VideoPlayer(props) {
     const [micOn, setMicOn] = useState(false);
 
     return (
-        <div className={classes.constainer}>
         <Card className={classes.root}>
 
             {/* full screen icon */}
@@ -131,7 +126,6 @@ function VideoPlayer(props) {
                 </IconButton>
            </CardActions>
         </Card>
-        </div>
     );
 }
 
