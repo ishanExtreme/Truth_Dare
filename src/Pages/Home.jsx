@@ -223,36 +223,80 @@ function Home(props) {
                             </Button>
                         </Grid>
 
-                        <Grid item>
-                            <ButtonGroup>
-                                <Button
-                                variant="outlined" 
-                                color="primary"
-                                size="large"
-                                endIcon={<AssignmentTurnedInOutlinedIcon />}
-                                >   
-                                Task Completed
-                                </Button>
+                        {/* Task Button Group small to xl view */}
+                        <Hidden xsDown>
+                            <Grid item>
+                                <ButtonGroup>
+                                    <Button
+                                    variant="outlined" 
+                                    color="primary"
+                                    size="large"
+                                    endIcon={<AssignmentTurnedInOutlinedIcon />}
+                                    >   
+                                    Task Completed
+                                    </Button>
+
+                                    <Button
+                                    variant="contained" 
+                                    color="primary"
+                                    size="large"
+                                    endIcon={<AssignmentIndOutlinedIcon />}
+                                    >   
+                                    Give Task
+                                    </Button>
+
+                                    <Button
+                                    variant="outlined" 
+                                    color="primary"
+                                    size="large"
+                                    endIcon={<CancelOutlinedIcon />}
+                                    >   
+                                    Task Not Completed
+                                    </Button>
+                                </ButtonGroup>
+                            </Grid>
+                        </Hidden>
+                        {/* End small to xl view */}
+
+                        {/* Task Button Group xs view */}
+                        <Hidden smUp>
+
+                            <Grid item>
 
                                 <Button
-                                variant="contained" 
-                                color="primary"
-                                size="large"
-                                endIcon={<AssignmentIndOutlinedIcon />}
-                                >   
-                                Give Task
+                                    variant="contained" 
+                                    color="primary"
+                                    size="large"
+                                    style={{marginRight: '20px', marginBottom: '20px'}}
+                                    endIcon={<AssignmentIndOutlinedIcon />}
+                                    >   
+                                    Give Task
                                 </Button>
 
-                                <Button
-                                variant="outlined" 
-                                color="primary"
-                                size="large"
-                                endIcon={<CancelOutlinedIcon />}
-                                >   
-                                Task Not Completed
-                                </Button>
-                            </ButtonGroup>
-                        </Grid>
+                            </Grid>
+                            <Grid item>
+                                <ButtonGroup>
+                                    <Button
+                                    variant="outlined" 
+                                    color="primary"
+                                    size="large"
+                                    endIcon={<AssignmentTurnedInOutlinedIcon />}
+                                    >   
+                                    Task Completed
+                                    </Button>
+
+                                    <Button
+                                    variant="outlined" 
+                                    color="primary"
+                                    size="large"
+                                    endIcon={<CancelOutlinedIcon />}
+                                    >   
+                                    Task Not Completed
+                                    </Button>
+                                </ButtonGroup>
+                            </Grid>
+                        </Hidden>
+                        {/* End xs view */}
 
                         <Grid item>
                             <Button
