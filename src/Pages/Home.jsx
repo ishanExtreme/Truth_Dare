@@ -10,6 +10,7 @@ import AssignmentIndOutlinedIcon from '@material-ui/icons/AssignmentIndOutlined'
 import ThreeSixtyIcon from '@material-ui/icons/ThreeSixty';
 import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
+import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 
 import './home.css';
 import VideoPlayer from '../Components/VideoPlayer';
@@ -148,6 +149,15 @@ function Home(props) {
                                         variant="outlined" 
                                         color="primary"
                                         size="large"
+                                        endIcon={<AssignmentTurnedInOutlinedIcon />}
+                                        >   
+                                        Task Completed
+                                        </Button>
+
+                                        <Button
+                                        variant="contained" 
+                                        color="primary"
+                                        size="large"
                                         endIcon={<AssignmentIndOutlinedIcon />}
                                         >   
                                         Give Task
@@ -157,9 +167,9 @@ function Home(props) {
                                         variant="outlined" 
                                         color="primary"
                                         size="large"
-                                        endIcon={<AssignmentTurnedInOutlinedIcon />}
+                                        endIcon={<CancelOutlinedIcon />}
                                         >   
-                                        Task Done?
+                                        Task Not Completed
                                         </Button>
                                     </ButtonGroup>
 
