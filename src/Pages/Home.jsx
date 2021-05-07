@@ -1,10 +1,14 @@
 import React from 'react';
-import { makeStyles, createMuiTheme, ThemeProvider } from '@material-ui/core';
+import { makeStyles, createMuiTheme, ThemeProvider, withWidth } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
+import Hidden from '@material-ui/core/Hidden';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
+import AppBar from '@material-ui/core/AppBar';
+import ToolBar from '@material-ui/core/Toolbar';
+
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import AssignmentIndOutlinedIcon from '@material-ui/icons/AssignmentIndOutlined';
 import ThreeSixtyIcon from '@material-ui/icons/ThreeSixty';
@@ -34,6 +38,24 @@ const useStyles = makeStyles((theme)=>{
             marginBottom: theme.spacing(2),
             
         },
+        
+        mobileGridItem: {
+            marginBottom: theme.spacing(3),
+        },
+
+        appBar: {
+            top: 'auto',
+            bottom: 0,
+            backgroundColor: "#263238",
+            paddingTop: theme.spacing(5),
+            paddingBottom: theme.spacing(5),
+            paddingInline: theme.spacing(1),
+            // paddingLeft: theme.spacing(1)
+        },
+
+        // mobileContainer: {
+
+        // }
 
         
     };
@@ -110,7 +132,9 @@ function Home(props) {
                 </Grid>
                 {/* Detail Row End*/}
 
+                {/* Desktop View Implementation */}
                 {/* Video Player Pair one */}
+                <Hidden lgDown>
                 <Grid item xs={12}>
                     <Grid 
                     container
@@ -118,76 +142,17 @@ function Home(props) {
                         <Grid item>
                             <VideoPlayer />
                         </Grid>
-
-                        {/* Buttons */}
-                        <Grid item>    
-
-                            <Grid
-                            container
-                            direction="column"
-                            justify="space-between"
-                            alignItems="center"
-                            style={{height: '100%'}}
-                            >
-                                
-                                <Grid item>
-                                    <Button
-                                    variant="outlined" 
-                                    color="secondary"
-                                    size="large"
-                                    endIcon={<ThreeSixtyIcon />}
-                                    style={{marginTop: '100px'}}
-                                    >   
-                                    SPIN
-                                    </Button>
-                                </Grid>
-
-                                <Grid item>
-
-                                    <ButtonGroup>
-                                        <Button
-                                        variant="outlined" 
-                                        color="primary"
-                                        size="large"
-                                        endIcon={<AssignmentTurnedInOutlinedIcon />}
-                                        >   
-                                        Task Completed
-                                        </Button>
-
-                                        <Button
-                                        variant="contained" 
-                                        color="primary"
-                                        size="large"
-                                        endIcon={<AssignmentIndOutlinedIcon />}
-                                        >   
-                                        Give Task
-                                        </Button>
-
-                                        <Button
-                                        variant="outlined" 
-                                        color="primary"
-                                        size="large"
-                                        endIcon={<CancelOutlinedIcon />}
-                                        >   
-                                        Task Not Completed
-                                        </Button>
-                                    </ButtonGroup>
-
-                                </Grid>
-
-                            </Grid>
-
-                        </Grid>
-                        {/* Button End */}
 
                         <Grid item>
                             <VideoPlayer />
                         </Grid>
                     </Grid>
                 </Grid>
+                </Hidden>
                 {/* Pair one end */}
 
                 {/* Video Player Pair two */}
+                <Hidden lgDown>
                 <Grid item xs={12}>
                     <Grid 
                     container
@@ -196,28 +161,114 @@ function Home(props) {
                             <VideoPlayer />
                         </Grid>
 
-                        {/* Buttons */}
-                        <Grid item>    
-                          
+                        <Grid item>
+                            <VideoPlayer />
+                        </Grid>
+                    </Grid>
+                </Grid>
+                </Hidden>
+                {/* Pair two end */}
+                {/* Desktop View End */}
+
+
+                {/* Mobile View Implementation */}
+                {/* Video Players */}
+                <Hidden xlUp >
+                    <Grid
+                    container
+                    justify="center"
+                    >
+                        <Grid item className={classes.mobileGridItem}>
+                            <VideoPlayer />
+                        </Grid>
+
+                        <Grid item className={classes.mobileGridItem}>
+                            <VideoPlayer />
+                        </Grid>
+
+                        <Grid item className={classes.mobileGridItem}>
+                            <VideoPlayer />
+                        </Grid>
+
+                        <Grid item className={classes.mobileGridItem}>
+                            <VideoPlayer />
+                        </Grid>
+                        
+                    </Grid>
+
+                    
+                </Hidden>
+                {/* Mobile View End */}
+
+                {/* Button Bar */}
+                <AppBar 
+                position="sticky"
+                // color="dark"
+                className={classes.appBar}
+                >
+                    <Grid
+                    container
+                    direction="column"
+                    alignItems="center"
+                    >
+                        <Grid item >
                             <Button
                             variant="outlined" 
                             color="secondary"
                             size="large"
+                            style={{marginRight: '20px', marginBottom: '20px'}}
+                            endIcon={<ThreeSixtyIcon />}
+                            >   
+                            SPIN
+                            </Button>
+                        </Grid>
+
+                        <Grid item>
+                            <ButtonGroup>
+                                <Button
+                                variant="outlined" 
+                                color="primary"
+                                size="large"
+                                endIcon={<AssignmentTurnedInOutlinedIcon />}
+                                >   
+                                Task Completed
+                                </Button>
+
+                                <Button
+                                variant="contained" 
+                                color="primary"
+                                size="large"
+                                endIcon={<AssignmentIndOutlinedIcon />}
+                                >   
+                                Give Task
+                                </Button>
+
+                                <Button
+                                variant="outlined" 
+                                color="primary"
+                                size="large"
+                                endIcon={<CancelOutlinedIcon />}
+                                >   
+                                Task Not Completed
+                                </Button>
+                            </ButtonGroup>
+                        </Grid>
+
+                        <Grid item>
+                            <Button
+                            variant="outlined" 
+                            color="secondary"
+                            size="large"
+                            style={{marginRight: '20px', marginTop: '20px '}}
                             endIcon={< ExitToAppOutlinedIcon/>}
-                            style={{marginTop: '100px'}}
                             >   
                             Leave Room
                             </Button>
-                                
                         </Grid>
-                        {/* Button End */}
 
-                        <Grid item>
-                            <VideoPlayer />
-                        </Grid>
                     </Grid>
-                </Grid>
-                {/* Pair two end */}
+                </AppBar>
+                {/* Bar End */}
 
             </Grid>
             {/* Main Container End */}
@@ -227,4 +278,4 @@ function Home(props) {
     );
 }
 
-export default Home;
+export default withWidth()(Home);
