@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { useHistory } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const useStyles = makeStyles((theme)=>{
@@ -42,10 +41,9 @@ const divVariant = {
     }
 }
 
-function InputContainer({children, onClick}) {
+function InputContainer({children, handleClick}) {
 
     const classes = useStyles();
-    const history = useHistory();
 
     return (
         <motion.div
@@ -57,7 +55,7 @@ function InputContainer({children, onClick}) {
                 
                 <div className={classes.iconContainer}>
                     <IconButton
-                    onClick={()=>history.push("/")}
+                    onClick={()=>handleClick('option')}
                     >
                         <ArrowBackIcon />
                     </IconButton>

@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme)=> {
 }
 })
 
-function CreateRoom(props) {
+function CreateRoom({handleClick}) {
 
     const classes = useStyles();
 
@@ -44,7 +44,7 @@ function CreateRoom(props) {
     return (
         <div className={classes.container}>
 
-            <InputContainer>
+            <InputContainer handleClick={handleClick}>
                 <InputField 
                 label="Room Name"
                 handleSubmit={onSubmit} 

@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme)=>{
     }
 });
 
-function JoinRoom(props) {
+function JoinRoom({handleClick}) {
 
     const classes = useStyles();
 
@@ -47,7 +47,7 @@ function JoinRoom(props) {
     return (
         <div className={classes.container}>
             
-            <InputContainer>
+            <InputContainer handleClick={handleClick}>
 
                 <InputField 
                 label="Room ID"
