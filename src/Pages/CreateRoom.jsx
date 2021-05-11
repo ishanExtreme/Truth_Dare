@@ -14,32 +14,9 @@ const useStyles = makeStyles((theme)=> {
 }
 })
 
-function CreateRoom({handleClick}) {
+function CreateRoom({handleClick, handleNameChange, handleRoomChange}) {
 
     const classes = useStyles();
-
-    // room name
-    const [room, setRoom] = useState('');
-    // errors
-    const [error, setError] = useState('');
-
-    const onSubmit = (e)=> {
-        e.preventDefault();
-
-        setError('');
-
-        // validations
-        if(room === '')
-        {
-            setError("Room Name is Required!!!");
-        }
-
-        if(room)
-        {
-            console.log(room);
-        }
-    }
-
 
     return (
         <div className={classes.container}>
@@ -47,10 +24,11 @@ function CreateRoom({handleClick}) {
             <InputContainer handleClick={handleClick}>
                 <InputField 
                 label="Room Name"
-                handleSubmit={onSubmit} 
+                // handleSubmit={onSubmit} 
                 buttonLabel="Create Room"
-                onChange={name=>setRoom(name)}
-                error={error}
+                onRoomChange={handleRoomChange}
+                onNameChange={handleNameChange}
+                // error={error}
                 />
             </InputContainer>
 

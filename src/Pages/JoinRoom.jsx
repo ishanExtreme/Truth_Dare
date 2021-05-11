@@ -16,33 +16,9 @@ const useStyles = makeStyles((theme)=>{
     }
 });
 
-function JoinRoom({handleClick}) {
+function JoinRoom({handleClick, handleNameChange, handleRoomChange}) {
 
     const classes = useStyles();
-
-    // room ID
-    const [id, setID] = useState('');
-    // error
-    const [error, setError] = useState('');
-
-    const onSubmit = (e)=>{
-
-        e.preventDefault();
-
-        setError('');
-
-        // validation
-        if(id === '')
-        {
-            setError("Room ID is Required!!!");
-        }
-
-        if(id)
-        {
-            console.log(id);
-        }
-    }
-
 
     return (
         <div className={classes.container}>
@@ -51,10 +27,11 @@ function JoinRoom({handleClick}) {
 
                 <InputField 
                 label="Room ID"
-                handleSubmit={onSubmit} 
+                // handleSubmit={onSubmit}
                 buttonLabel="Join Room"
-                onChange={id=>setID(id)}
-                error={error}
+                onRoomChange={handleRoomChange}
+                onNameChange={handleNameChange}
+                // error={error}
                 />
 
             </InputContainer>

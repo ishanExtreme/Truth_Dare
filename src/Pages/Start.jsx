@@ -3,7 +3,7 @@ import CreateRoom from './CreateRoom';
 import JoinRoom from './JoinRoom';
 import Option from './Option';
 
-function Start({handleUserName, handleRoomName, handleSubmit}) {
+function Start({handleNameChange, handleRoomChange, handleSubmit}) {
 
     // switch between component "create", "join" and "option"
     const [component, setComponent] = useState('option');
@@ -16,13 +16,21 @@ function Start({handleUserName, handleRoomName, handleSubmit}) {
     if(component === 'option')
     {
         render = (
-            <Option handleClick={handleClick}/>
+            <Option 
+            handleClick={handleClick} 
+            handleNameChange={handleNameChange}
+            handleRoomChange={handleRoomChange}
+            />
         );
     }
     else if(component === 'create')
     {
         render = (
-            <CreateRoom handleClick={handleClick}/>
+            <CreateRoom 
+            handleClick={handleClick}
+            handleNameChange={handleNameChange}
+            handleRoomChange={handleRoomChange}
+            />
         );
     }
 
