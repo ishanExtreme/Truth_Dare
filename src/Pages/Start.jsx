@@ -3,13 +3,14 @@ import CreateRoom from './CreateRoom';
 import JoinRoom from './JoinRoom';
 import Option from './Option';
 
-function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreateRoom, error, loading}) {
+function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreateRoom, error, loading, resetError}) {
 
     // switch between component "create", "join" and "option"
     const [component, setComponent] = useState('option');
 
     const handleClick = (component_name)=>{
         setComponent(component_name);
+        resetError();
     };
 
     let render;

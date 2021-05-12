@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -16,8 +16,9 @@ const useStyles = makeStyles((theme)=>{
     return {
         video: {
             width: '550px',
+            height: '300px',
             [theme.breakpoints.down('xs')]: {
-                width: '300px'
+                width: '300px',
             },
             backgroundColor: 'black'
         },
@@ -49,8 +50,161 @@ function VideoPlayer({participant, local=false}) {
 
     const classes = useStyles();
 
-    const [videoOn, setVideoOn] = useState(false);
-    const [micOn, setMicOn] = useState(false);
+    const [videoOn, setVideoOn] = useState(true);
+    const [micOn, setMicOn] = useState(true);
+    const [videoTracks, setVideoTracks] = useState([]);
+    const [audioTracks, setAudioTracks] = useState([]);
+
+    const videoRef = useRef();
+    const audioRef = useRef();
+
+    const trackpubsToTracks = (trackMap, type) => {
+        const Trackarray = Array.from(trackMap.values())
+        .map(publication => publication.track)
+        .filter(track => track!=null);
+
+        Trackarray.forEach(track=>{
+            
+            if(type == 'video')
+            {
+                track.on('disabled', ()=> {
+                    setVideoOn(false);
+                    
+                });
+                track.on('enabled', ()=>{
+                    setVideoOn(true);
+                });
+            }
+            else
+            {
+                track.on('disabled', ()=> {
+                    setMicOn(false);
+                    
+                });
+                track.on('enabled', ()=>{
+                    setMicOn(true);
+                }) 
+            }
+            
+        })
+
+        return Trackarray;
+    }
+
+    
+    useEffect(() => {
+        const trackSubscribed = track =>{
+            if(track.kind === 'video'){
+                track.on('disabled', ()=> {
+                    setVideoOn(false);
+                    
+                });
+                track.on('enabled', ()=>{
+                    setVideoOn(true);
+                })
+                setVideoTracks(videoTracks=> [...videoTracks, track]);
+            } else {
+                track.on('disabled', ()=> {
+                    setMicOn(false);
+                    
+                });
+                track.on('enabled', ()=>{
+                    setMicOn(true);
+                }) 
+                setAudioTracks(audioTracks=> [...audioTracks, track]);
+            }
+        }
+
+        const trackUnSubscribed = track =>{
+            if(track.kind === 'video') {
+                setVideoTracks(videoTracks=> videoTracks.filter(v=> v!==track));
+            } else {
+                setAudioTracks(audioTracks=> audioTracks.filter(a=> a!==track));
+            }
+        }
+
+        // get all the "non null" tracks
+        setVideoTracks(trackpubsToTracks(participant.videoTracks, 'video'));
+        setAudioTracks(trackpubsToTracks(participant.audioTracks, 'audio'));
+
+        participant.on('trackSubscribed', trackSubscribed);
+        participant.on('trackUnsubscribed', trackUnSubscribed);
+
+        // clear listeners(cleanup)
+        return () => {
+            setVideoTracks([]);
+            setAudioTracks([]);
+            participant.removeAllListeners();
+        };
+
+
+    }, [participant]);
+
+    // attaching video track
+    useEffect(() => {
+        const videoTrack = videoTracks[0];
+        if(videoTrack) {
+            videoTrack.attach(videoRef.current);
+            return ()=> {
+                videoTrack.detach();
+            };
+        }
+    }, [videoTracks]);
+
+    // attaching audio track
+    useEffect(() => {
+        const audioTrack = audioTracks[0];
+        console.log(audioTrack);
+        if(audioTrack) {
+            audioTrack.attach(audioRef.current);
+            return ()=> {
+                audioTrack.detach();
+            };
+        }
+    }, [audioTracks]);
+    
+
+    const toogleVideo = ()=>{
+        // if initally video is on than disable it
+        if(videoOn)
+        {
+            participant.videoTracks.forEach(publication => {
+                if(publication.track)
+                    publication.track.disable();
+            })
+        }
+        // else enable it
+        else
+        {
+            participant.videoTracks.forEach(publication => {
+                publication.track.enable();
+            })
+        }
+
+        // toogle
+        // setVideoOn(!videoOn);
+    };
+
+    const toogleAudio = ()=>{
+
+        // if mic on than disable it
+        if(micOn)
+        {
+            participant.audioTracks.forEach(publication=>{
+                publication.track.disable();
+            })
+        }
+        // else enable it
+        else
+        {
+            participant.audioTracks.forEach(publication=>{
+                publication.track.enable();
+            })
+        }
+
+        // toogle
+        // setMicOn(!micOn);
+    };
 
     return (
         <Card className={classes.root}>
@@ -59,7 +213,7 @@ function VideoPlayer({participant, local=false}) {
             <div className={classes.screenIcon}>
 
                 <Typography variant="h5" className={classes.userName}>
-                    {local?"You":participant?participant.identity:"Waiting for Player..."}
+                    {local?"You":participant.identity}
                 </Typography>
 
                 <IconButton>
@@ -72,24 +226,26 @@ function VideoPlayer({participant, local=false}) {
 
             </div>
 
-            {/* Name of the user */}
-            <div>
-                
-            </div>
-
            <CardContent>
+               {/* Video */}
                <video 
                playsInline 
                autoPlay 
-               red={null}
+               ref={videoRef}
                className={classes.video}
+               />
+
+               {/* Audio */}
+               <audio 
+               ref={audioRef} 
+               autoPlay 
                />
            </CardContent>
 
            <CardActions disableSpacing >
                 <IconButton 
                 style={{marginRight:'50px'}}
-                onClick={()=>setVideoOn(!videoOn)}
+                onClick={toogleVideo}
                 // enable button for local participants only
                 disabled={!local}
                 >
@@ -110,7 +266,7 @@ function VideoPlayer({participant, local=false}) {
         
                 <IconButton 
                 style={{marginLeft:'50px'}}
-                onClick={()=>setMicOn(!micOn)}
+                onClick={toogleAudio}
                 // enable button for local participants only
                 disabled={!local}
                 >

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {connect} from 'twilio-video';
 
 import Home from './Home';
@@ -24,9 +24,41 @@ function Main(props) {
         setRoomName(event.target.value);
     }, []);
 
-    // const handleLogout = useCallback(event => {
-    //     setToken(null);
-    // }, []);
+    const resetError = ()=>{
+        setError('');
+    }
+
+    const handleLogout = useCallback(() => {
+        setRoom((prevRoom) => {
+          if (prevRoom) {
+            prevRoom.localParticipant.tracks.forEach((trackPub) => {
+              trackPub.track.stop();
+            });
+            // participantDisconnected event
+            prevRoom.disconnect();
+          }
+          return null;
+        });
+    }, []);
+    
+    useEffect(() => {
+        if (room) {
+        const tidyUp = (event) => {
+            if (event.persisted) {
+            return;
+            }
+            if (room) {
+            handleLogout();
+            }
+        };
+        window.addEventListener("pagehide", tidyUp);
+        window.addEventListener("beforeunload", tidyUp);
+        return () => {
+            window.removeEventListener("pagehide", tidyUp);
+            window.removeEventListener("beforeunload", tidyUp);
+        };
+        }
+    }, [room, handleLogout]);
 
     const validate = ()=>{
 
@@ -42,7 +74,6 @@ function Main(props) {
 
         event.preventDefault();
         setLoading(true);
-        console.log("IN");
         setError('');
         const error = validate();
 
@@ -74,7 +105,7 @@ function Main(props) {
             }
             catch(err)
             {
-                console.log(err);
+                setError("Room does not exists");
                 setLoading(false);
             }
 
@@ -128,11 +159,11 @@ function Main(props) {
                 });
 
                 setRoom(room);
-                
+
             }
             catch(err)
             {
-                console.log(err);
+                setError(err.message);
                 setLoading(false);
             }
             setLoading(false);
@@ -146,8 +177,8 @@ function Main(props) {
     if(room)
     {
         render = (
-            // <Home roomName={roomName} token={token} handleLogout={handleLogout}/>
-            <p>Inside Room</p>
+            <Home roomName={roomName} room={room} handleLogout={handleLogout}/>
+            
         );
     }
     else
@@ -160,6 +191,7 @@ function Main(props) {
             handleJoinRoom={handleJoinRoom}
             error={error}
             loading={loading}
+            resetError={resetError}
             />
         );
     }

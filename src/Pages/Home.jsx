@@ -15,8 +15,6 @@ import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedI
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 
-import {connect} from 'twilio-video';
-
 import './home.css';
 import VideoPlayer from '../Components/VideoPlayer';
 
@@ -68,7 +66,10 @@ const theme = createMuiTheme({
     }
 })
 
-function Home({roomName, token, handleLogout}) {
+function Home({roomName, room, handleLogout}) {
+
+    // participants list
+    const [participants, setParticipants] = useState([]);
 
     useEffect(()=> {
         
@@ -84,9 +85,7 @@ function Home({roomName, token, handleLogout}) {
             );
         };
 
-        const room = joinRoom();
-        console.log(room);
-        setRoom(room);
+        
         // listener on participants connect   
         room.on('participantConnected', participantConnected);
         // listener on participant disconnects   
@@ -96,35 +95,15 @@ function Home({roomName, token, handleLogout}) {
 
 
         return ()=> {
-            setRoom(currentRoom => {
-                if (currentRoom && currentRoom.localParticipant.state === 'connected') {
-                    currentRoom.localParticipant.tracks.forEach(function(trackPublication) {
-                      trackPublication.track.stop();
-                    });
-                    // ------SEEE---------
-                    currentRoom.disconnect();
-                    return null;
-                } else {
-                    return currentRoom;
-                }
-            });
+            // ------- Not Known --------
+            room.off("participantConnected", participantConnected);
+            room.off("participantDisconnected", participantDisconnected);
+            // ------- Not Known --------
         };
 
-    }, [roomName, token]);
+    }, [room]);
 
     const classes = useStyles();
-
-    // Room object
-    const [room, setRoom] = useState(null);
-    // participants list
-    const [participants, setParticipants] = useState([]);
-
-    const joinRoom = async ()=>
-    {
-        return await connect(token, {
-            name: roomName
-        })
-    }
 
     return (
         
@@ -201,7 +180,8 @@ function Home({roomName, token, handleLogout}) {
 
                         <Grid item>
                             {/* Participant 1 */}
-                            <VideoPlayer participant={participants[0]}/>
+                            {participants[0]&&
+                            <VideoPlayer participant={participants[0]}/>}
                         </Grid>
                     </Grid>
                 </Grid>
@@ -216,12 +196,14 @@ function Home({roomName, token, handleLogout}) {
                     justify="space-between">
                         <Grid item>
                             {/* participant 2 */}
-                            <VideoPlayer participant={participants[1]}/>
+                            {participants[1]&&
+                            <VideoPlayer participant={participants[1]}/>}
                         </Grid>
 
                         <Grid item>
                             {/* participant 3 */}
-                            <VideoPlayer participant={participants[2]}/>
+                            {participants[2]&&
+                            <VideoPlayer participant={participants[2]}/>}
                         </Grid>
                     </Grid>
                 </Grid>
@@ -238,19 +220,26 @@ function Home({roomName, token, handleLogout}) {
                     justify="center"
                     >
                         <Grid item className={classes.mobileGridItem}>
-                            <VideoPlayer />
+                            {/* Local participant video */}
+                            <VideoPlayer participant={room.localParticipant} local={true}/>
                         </Grid>
 
                         <Grid item className={classes.mobileGridItem}>
-                            <VideoPlayer />
+                            {/* participant 1 */}
+                            {participants[0]&&
+                            <VideoPlayer participant={participants[0]}/>}
                         </Grid>
 
                         <Grid item className={classes.mobileGridItem}>
-                            <VideoPlayer />
+                            {/* participant 2 */}
+                            {participants[1]&&
+                            <VideoPlayer participant={participants[1]}/>}
                         </Grid>
 
                         <Grid item className={classes.mobileGridItem}>
-                            <VideoPlayer />
+                            {/* participant 2 */}
+                            {participants[2]&&
+                            <VideoPlayer participant={participants[2]}/>}
                         </Grid>
                         
                     </Grid>
@@ -380,7 +369,7 @@ function Home({roomName, token, handleLogout}) {
         </ThemeProvider>
         </div>
     );
-    
+
 }
 
 export default withWidth()(Home);
