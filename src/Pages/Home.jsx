@@ -105,6 +105,13 @@ function Home({roomName, room, handleLogout}) {
 
     const classes = useStyles();
 
+    const sendMessage = ()=> {
+        // Get the LocalDataTrack that we published to the room.
+        const [localDataTrackPublication] = [...room.localParticipant.dataTracks.values()];
+        const fullMessage = `${room.localParticipant.identity} says: Hello its wroking!!!`;
+        localDataTrackPublication.track.send(fullMessage);
+    }
+
     return (
         
         <div className={classes.root}>
@@ -261,6 +268,7 @@ function Home({roomName, room, handleLogout}) {
                     >
                         <Grid item >
                             <Button
+                            onClick={sendMessage}
                             variant="outlined" 
                             color="secondary"
                             size="large"

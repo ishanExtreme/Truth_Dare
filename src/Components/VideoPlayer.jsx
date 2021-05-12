@@ -89,8 +89,21 @@ function VideoPlayer({participant, local=false}) {
         })
 
         return Trackarray;
+    };
+
+    const handleMessage = (msg)=>{
+        console.log(msg);
     }
 
+    const getNonNullDataTracks = (trackMap)=>{
+        const trackArray = Array.from(trackMap.values())
+        .map(publication => publication.track)
+        .filter(track => track!=null);
+
+        trackArray.forEach(track => {
+            track.on('message', handleMessage);
+        })
+    }
     
     useEffect(() => {
         const trackSubscribed = track =>{
@@ -103,7 +116,7 @@ function VideoPlayer({participant, local=false}) {
                     setVideoOn(true);
                 })
                 setVideoTracks(videoTracks=> [...videoTracks, track]);
-            } else {
+            } else if(track.kind === 'audio') {
                 track.on('disabled', ()=> {
                     setMicOn(false);
                     
@@ -112,20 +125,25 @@ function VideoPlayer({participant, local=false}) {
                     setMicOn(true);
                 }) 
                 setAudioTracks(audioTracks=> [...audioTracks, track]);
+            } 
+            else if(track.kind === 'data'){
+                track.on('message', handleMessage);
             }
+
         }
 
         const trackUnSubscribed = track =>{
             if(track.kind === 'video') {
                 setVideoTracks(videoTracks=> videoTracks.filter(v=> v!==track));
-            } else {
+            } else if(track.kind === 'audio') {
                 setAudioTracks(audioTracks=> audioTracks.filter(a=> a!==track));
-            }
+            } 
         }
 
         // get all the "non null" tracks
         setVideoTracks(trackpubsToTracks(participant.videoTracks, 'video'));
         setAudioTracks(trackpubsToTracks(participant.audioTracks, 'audio'));
+        getNonNullDataTracks(participant.dataTracks)
 
         participant.on('trackSubscribed', trackSubscribed);
         participant.on('trackUnsubscribed', trackUnSubscribed);
@@ -154,7 +172,6 @@ function VideoPlayer({participant, local=false}) {
     // attaching audio track
     useEffect(() => {
         const audioTrack = audioTracks[0];
-        console.log(audioTrack);
         if(audioTrack) {
             audioTrack.attach(audioRef.current);
             return ()=> {
@@ -216,7 +233,9 @@ function VideoPlayer({participant, local=false}) {
                     {local?"You":participant.identity}
                 </Typography>
 
-                <IconButton>
+                <IconButton
+                // onClick={()=>sendMessage("Working!!!!")}
+                >
                     <FullscreenIcon
                     style={{color: 'white'}}
                     fontSize="large" 

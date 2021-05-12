@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import {connect} from 'twilio-video';
+import {connect, LocalDataTrack} from 'twilio-video';
 
 import Home from './Home';
 import Start from './Start';
@@ -31,8 +31,10 @@ function Main(props) {
     const handleLogout = useCallback(() => {
         setRoom((prevRoom) => {
           if (prevRoom) {
+            //------------Giving error on stopping dataTracks------------
             prevRoom.localParticipant.tracks.forEach((trackPub) => {
-              trackPub.track.stop();
+                if(trackPub.track.kind !== 'data')
+                    trackPub.track.stop();
             });
             // participantDisconnected event
             prevRoom.disconnect();
@@ -97,9 +99,16 @@ function Main(props) {
 
             try
             {
+                
                 const room = await connect(result.data.token, {
-                    name: roomName
+                    name: roomName,
                 });
+
+                // Local datatrack to publish in a room(for sending messages)
+                const dataTrack = new LocalDataTrack();
+                // publish the track
+                await room.localParticipant.publishTrack(dataTrack);
+
 
                 setRoom(room);
             }
@@ -154,9 +163,15 @@ function Main(props) {
 
             try
             {
+
                 const room = await connect(result.data.token, {
-                    name: roomName
+                    name: roomName,
                 });
+
+                // Local datatrack to publish in a room(for sending messages)
+                const dataTrack = new LocalDataTrack();
+                // publish the track
+                await room.localParticipant.publishTrack(dataTrack);
 
                 setRoom(room);
 
