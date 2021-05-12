@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme)=>{
     }
 });
 
-function JoinRoom({handleClick, handleNameChange, handleRoomChange}) {
+function JoinRoom({handleClick, handleNameChange, handleRoomChange, handleJoinRoom, error, loading}) {
 
     const classes = useStyles();
 
@@ -27,11 +27,12 @@ function JoinRoom({handleClick, handleNameChange, handleRoomChange}) {
 
                 <InputField 
                 label="Room ID"
-                // handleSubmit={onSubmit}
+                handleSubmit={handleJoinRoom}
                 buttonLabel="Join Room"
                 onRoomChange={handleRoomChange}
                 onNameChange={handleNameChange}
-                // error={error}
+                error={error}
+                loading={loading}
                 />
 
             </InputContainer>

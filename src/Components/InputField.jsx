@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles, createMuiTheme, ThemeProvider } from '@material-ui/core'
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import { blue, purple } from '@material-ui/core/colors';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme)=>{
     return {
@@ -14,6 +15,9 @@ const useStyles = makeStyles((theme)=>{
         },
         button: {
             marginLeft: theme.spacing(2)
+        },
+        loading: {
+            marginLeft: theme.spacing(10)
         },
         error: {
             marginBottom: theme.spacing(1),
@@ -30,7 +34,7 @@ const theme = createMuiTheme({
 })
 
 function InputField({label, handleSubmit, buttonLabel, 
-    onNameChange, onRoomChange ,error}) {
+    onNameChange, onRoomChange ,error, loading}) {
 
     const classes = useStyles();
 
@@ -70,17 +74,23 @@ function InputField({label, handleSubmit, buttonLabel,
                  }
 
                 <br/>
-
-                {/* Submit button */}
-                <Button
-                className={classes.button}
-                type="submit"
-                color="secondary"
-                variant="contained"
-                endIcon={<NavigateNextIcon />}
-                >
-                {buttonLabel}
-                </Button>
+                {loading?
+                    <CircularProgress 
+                    className={classes.loading}
+                    color="secondary"/>
+                    :
+                    // Submit Button
+                    <Button
+                    className={classes.button}
+                    type="submit"
+                    color="secondary"
+                    variant="contained"
+                    endIcon={<NavigateNextIcon />}
+                    >
+                    {buttonLabel}
+                    </Button>
+                }
+                
             </form>
         </ThemeProvider>
     );

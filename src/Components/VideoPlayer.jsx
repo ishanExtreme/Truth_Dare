@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-function VideoPlayer(props) {
+function VideoPlayer({participant, local=false}) {
 
     const classes = useStyles();
 
@@ -59,7 +59,7 @@ function VideoPlayer(props) {
             <div className={classes.screenIcon}>
 
                 <Typography variant="h5" className={classes.userName}>
-                    Ishan Mishra
+                    {local?"You":participant?participant.identity:"Waiting for Player..."}
                 </Typography>
 
                 <IconButton>
@@ -90,6 +90,8 @@ function VideoPlayer(props) {
                 <IconButton 
                 style={{marginRight:'50px'}}
                 onClick={()=>setVideoOn(!videoOn)}
+                // enable button for local participants only
+                disabled={!local}
                 >
                     {
                         videoOn?
@@ -109,6 +111,8 @@ function VideoPlayer(props) {
                 <IconButton 
                 style={{marginLeft:'50px'}}
                 onClick={()=>setMicOn(!micOn)}
+                // enable button for local participants only
+                disabled={!local}
                 >
                     {
                         micOn?

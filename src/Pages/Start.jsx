@@ -3,7 +3,7 @@ import CreateRoom from './CreateRoom';
 import JoinRoom from './JoinRoom';
 import Option from './Option';
 
-function Start({handleNameChange, handleRoomChange, handleSubmit}) {
+function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreateRoom, error, loading}) {
 
     // switch between component "create", "join" and "option"
     const [component, setComponent] = useState('option');
@@ -30,6 +30,9 @@ function Start({handleNameChange, handleRoomChange, handleSubmit}) {
             handleClick={handleClick}
             handleNameChange={handleNameChange}
             handleRoomChange={handleRoomChange}
+            handleCreateRoom={handleCreateRoom}
+            error={error}
+            loading={loading}
             />
         );
     }
@@ -37,7 +40,14 @@ function Start({handleNameChange, handleRoomChange, handleSubmit}) {
     else
     {
         render = (
-            <JoinRoom handleClick={handleClick}/>
+            <JoinRoom 
+            handleClick={handleClick}
+            handleNameChange={handleNameChange}
+            handleRoomChange={handleRoomChange}
+            handleJoinRoom={handleJoinRoom}
+            error={error}
+            loading={loading}
+            />
         );
     }
     

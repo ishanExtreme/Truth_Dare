@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles, createMuiTheme, ThemeProvider, withWidth } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import AppBar from '@material-ui/core/AppBar';
-import ToolBar from '@material-ui/core/Toolbar';
 
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import AssignmentIndOutlinedIcon from '@material-ui/icons/AssignmentIndOutlined';
@@ -15,6 +14,8 @@ import ThreeSixtyIcon from '@material-ui/icons/ThreeSixty';
 import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
+
+import {connect} from 'twilio-video';
 
 import './home.css';
 import VideoPlayer from '../Components/VideoPlayer';
@@ -67,9 +68,63 @@ const theme = createMuiTheme({
     }
 })
 
-function Home(props) {
+function Home({roomName, token, handleLogout}) {
+
+    useEffect(()=> {
+        
+        // when a participant connects
+        const participantConnected = participant => {
+            setParticipants(prevParticipants=> [...prevParticipants, participant]);
+        };
+        
+        // when a participant disconnects
+        const participantDisconnected = participant => {
+            setParticipants(prevParticipants=> 
+                prevParticipants.filter(p=> p!==participant)
+            );
+        };
+
+        const room = joinRoom();
+        console.log(room);
+        setRoom(room);
+        // listener on participants connect   
+        room.on('participantConnected', participantConnected);
+        // listener on participant disconnects   
+        room.on('participantDisconnected', participantDisconnected);
+        // initial mounting store all current users  
+        room.participants.forEach(participantConnected);
+
+
+        return ()=> {
+            setRoom(currentRoom => {
+                if (currentRoom && currentRoom.localParticipant.state === 'connected') {
+                    currentRoom.localParticipant.tracks.forEach(function(trackPublication) {
+                      trackPublication.track.stop();
+                    });
+                    // ------SEEE---------
+                    currentRoom.disconnect();
+                    return null;
+                } else {
+                    return currentRoom;
+                }
+            });
+        };
+
+    }, [roomName, token]);
 
     const classes = useStyles();
+
+    // Room object
+    const [room, setRoom] = useState(null);
+    // participants list
+    const [participants, setParticipants] = useState([]);
+
+    const joinRoom = async ()=>
+    {
+        return await connect(token, {
+            name: roomName
+        })
+    }
 
     return (
         
@@ -140,11 +195,13 @@ function Home(props) {
                     container
                     justify="space-between">
                         <Grid item>
-                            <VideoPlayer />
+                            {/* Local Participant */}
+                            <VideoPlayer participant={room.localParticipant} local={true}/>
                         </Grid>
 
                         <Grid item>
-                            <VideoPlayer />
+                            {/* Participant 1 */}
+                            <VideoPlayer participant={participants[0]}/>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -158,11 +215,13 @@ function Home(props) {
                     container
                     justify="space-between">
                         <Grid item>
-                            <VideoPlayer />
+                            {/* participant 2 */}
+                            <VideoPlayer participant={participants[1]}/>
                         </Grid>
 
                         <Grid item>
-                            <VideoPlayer />
+                            {/* participant 3 */}
+                            <VideoPlayer participant={participants[2]}/>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -300,6 +359,7 @@ function Home(props) {
 
                         <Grid item>
                             <Button
+                            onClick={handleLogout}
                             variant="outlined" 
                             color="secondary"
                             size="large"
@@ -320,6 +380,7 @@ function Home(props) {
         </ThemeProvider>
         </div>
     );
+    
 }
 
 export default withWidth()(Home);

@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme)=> {
 }
 })
 
-function CreateRoom({handleClick, handleNameChange, handleRoomChange}) {
+function CreateRoom({handleClick, handleNameChange, handleRoomChange, handleCreateRoom, error, loading}) {
 
     const classes = useStyles();
 
@@ -24,11 +24,12 @@ function CreateRoom({handleClick, handleNameChange, handleRoomChange}) {
             <InputContainer handleClick={handleClick}>
                 <InputField 
                 label="Room Name"
-                // handleSubmit={onSubmit} 
+                handleSubmit={handleCreateRoom}
                 buttonLabel="Create Room"
                 onRoomChange={handleRoomChange}
                 onNameChange={handleNameChange}
-                // error={error}
+                error={error}
+                loading={loading}
                 />
             </InputContainer>
 
