@@ -90,7 +90,10 @@ const theme = createMuiTheme({
     palette: {
         type: 'dark'
     }
-})
+});
+
+// stores performer name in task_giver session
+let performer_identity = "";
 
 function Home({roomName, room, handleLogout, initial_score}) {
 
@@ -123,10 +126,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
     // while assigning score
     const [assigningScore, setAssigningScore] = useState(false);
 
-    // stores performer name in task_giver session
-    let performer_identity = "";
     // to be run after spinning is completed
-    const cleanUp = ()=>{
+    const cleanUp = async ()=>{
 
         setSpinning(false);
         setBarMsg('');
@@ -138,6 +139,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
         setPerformingTask(false);
         performer_identity = "";
         setAssigningScore(false);
+
+        await spinOverApi.request({roomId: room.sid});
 
     }
     useEffect(()=> {
@@ -183,6 +186,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const getPerformerApi = useApi(gameApi.performer);
     const getTaskerApi = useApi(gameApi.task_giver);
     const scoreUpdateApi = useApi(gameApi.score_update);
+    const spinOverApi = useApi(gameApi.spin_over);
 
     // format of instruction codes are=>
     // #code%params*msg
@@ -265,19 +269,19 @@ function Home({roomName, room, handleLogout, initial_score}) {
                 return;
             }
 
-            // wait for some time before displaying result(10 seconds delay)
-            setTimeout(()=>sendMessage(`Bottle 🍾 is pointing towards ${result.data.participant}.Waiting for ${result.data.participant} to choose`, "performer_found", result.data.participant),  5000)
+            // wait for some time before displaying result(3 seconds delay)
+            setTimeout(()=>sendMessage(`Bottle 🍾 is pointing towards ${result.data.participant}.Waiting for ${result.data.participant} to choose`, "performer_found", result.data.participant),  3000)
             // sendMessage(`Bottle is pointing towards ${result.participant}. Waiting for ${result.participant} to choose`, "performer_found")
         }
 
     }
 
-    const handleSpinOverEvent = (msg, score, performer)=> {
+    const handleSpinOverEvent = (msg, scoreValue, performer)=> {
 
         if(performer === room.localParticipant.identity)
         {
-            if(score === '1'){
-                setScore(score+1);
+            if(scoreValue === '1'){
+                setScore(prevScore=> prevScore+1);
                 handleOpenNotif("Congratulations you successfully completed the task 🎉🎉", "success");
 
             }
@@ -310,6 +314,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
         {
             handleOpenNotif(`You are choosen to assign task to ${performer}`, "info")
             setTaskGiver(true);
+
+            performer_identity = performer;
         }
         else
             setBarMsg(msg);
@@ -324,10 +330,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
 
         setAssigningScore(true);
 
-        let score=0;
-        if(taskCompleted) score = 1;
+        let scoreValue=0;
+        if(taskCompleted) scoreValue = 1;
 
-        const result = await scoreUpdateApi({roomId: room.sid, identity: performer_identity});
+        const result = await scoreUpdateApi.request({roomId: room.sid, identity: performer_identity, score: scoreValue});
 
         if(!result.ok)
             {
@@ -346,10 +352,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
             }
 
             // msg, code, params
-            if(score === 1)
-                sendMessage(`${performer_identity} successfully completed the task`, "spin_over", `${score},${performer_identity}`);
+            if(scoreValue === 1)
+                sendMessage(`${performer_identity} successfully completed the task`, "spin_over", `${scoreValue},${performer_identity}`);
             else
-                sendMessage(`${performer_identity} was not able to complete the task`, "spin_over", `${score},${performer_identity}`);
+                sendMessage(`${performer_identity} was not able to complete the task`, "spin_over", `${scoreValue},${performer_identity}`);
 
     }
 
@@ -437,6 +443,12 @@ function Home({roomName, room, handleLogout, initial_score}) {
         }
 
 
+    }
+
+    const handleCopyToClipboard = ()=>{
+
+        navigator.clipboard.writeText(roomName)
+        handleOpenNotif("Copied to ClipBoard", "success");
     }
 
     const RenderSpinning = ()=>{
@@ -587,10 +599,13 @@ function Home({roomName, room, handleLogout, initial_score}) {
                                     className={classes.inviteText}> 
                                         Room Code
                                     </Typography>
-                                    <Button 
+                                    <Button
+                                    onClick={handleCopyToClipboard} 
                                     variant="outlined" 
                                     color="secondary"
-                                    endIcon={<FileCopyOutlinedIcon/>}>
+                                    endIcon={<FileCopyOutlinedIcon/>}
+                                    style={{textTransform: 'none'}}
+                                    >
                                         {roomName}
                                     </Button>
                             </Paper>

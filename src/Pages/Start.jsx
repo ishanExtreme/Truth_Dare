@@ -31,7 +31,6 @@ function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreate
             <CreateRoom 
             handleClick={handleClick}
             handleNameChange={handleNameChange}
-            handleRoomChange={handleRoomChange}
             handleCreateRoom={handleCreateRoom}
             error={error}
             loading={loading}

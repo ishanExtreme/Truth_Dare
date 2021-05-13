@@ -33,6 +33,7 @@ function JoinRoom({handleClick, handleNameChange, handleRoomChange, handleJoinRo
                 onNameChange={handleNameChange}
                 error={error}
                 loading={loading}
+                isJoin={true}
                 />
 
             </InputContainer>

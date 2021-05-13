@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import {connect, LocalDataTrack} from 'twilio-video';
 
 import Home from './Home';
@@ -7,6 +8,8 @@ import useApi from '../hooks/useApi';
 import videoApi from '../api/video';
 import roomApi from '../api/room';
 
+// stores user score
+let score=0;
 
 function Main(props) {
     const [userName, setUserName] = useState('');
@@ -17,8 +20,6 @@ function Main(props) {
     const getTokenApi = useApi(videoApi.video);
     const createRoomApi = useApi(roomApi.room);
     const joinRoomApi = useApi(roomApi.join);
-    // stores user score
-    let score=0;
 
     const handleNameChange = useCallback(event=>{
         setUserName(event.target.value);
@@ -66,7 +67,7 @@ function Main(props) {
         }
     }, [room, handleLogout]);
 
-    const validate = ()=>{
+    const validateJoin = ()=>{
 
         if(userName === '') return "User Name is required!!!"
         else if(roomName === '') return "Room Name is required!!!"
@@ -77,12 +78,21 @@ function Main(props) {
         return "";
     }
 
+    const validateCreate = ()=>{
+
+        if(userName === '') return "User Name is required!!!"
+        else if(userName.length < 4 || userName.length > 128) return "User Name must be between 4 to 128 characters long";
+        else if(userName.includes("*") || userName.includes("#") || userName.includes("%"))
+                return `User Name must not contain "*", "#" or "%"`;
+        return "";
+    }
+
     const handleJoinRoom = useCallback(async event=>{
 
         event.preventDefault();
         setLoading(true);
         setError('');
-        const error = validate();
+        const error = validateJoin();
 
         if(error) 
         {
@@ -122,7 +132,7 @@ function Main(props) {
                 // publish the track
                 await room.localParticipant.publishTrack(dataTrack);
 
-                score = join_result.data.score;
+                score = parseInt(join_result.data.score);
                 setRoom(room);
             }
             catch(err)
@@ -143,7 +153,7 @@ function Main(props) {
         event.preventDefault();
         setLoading(true);
         setError('');
-        const error = validate();
+        const error = validateCreate();
 
         if(error) 
         {
@@ -152,7 +162,8 @@ function Main(props) {
         }
         else
         {
-            const create_room_body = {identity: userName, room: roomName};
+            const uniqueRoomName = uuidv4().split("-")[0];
+            const create_room_body = {identity: userName, room: uniqueRoomName};
             const room_result = await createRoomApi.request(create_room_body);
 
             if(!room_result.ok)
@@ -163,7 +174,7 @@ function Main(props) {
                 return;
             }
 
-            const token_body = {identity: userName, room: roomName};
+            const token_body = {identity: userName, room: uniqueRoomName};
             const result = await getTokenApi.request(token_body);
 
             if(!result.ok){
@@ -178,7 +189,7 @@ function Main(props) {
             {
 
                 const room = await connect(result.data.token, {
-                    name: roomName,
+                    name: uniqueRoomName,
                 });
 
                 // Local datatrack to publish in a room(for sending messages)
@@ -186,6 +197,7 @@ function Main(props) {
                 // publish the track
                 await room.localParticipant.publishTrack(dataTrack);
 
+                setRoomName(uniqueRoomName);
                 setRoom(room);
 
             }

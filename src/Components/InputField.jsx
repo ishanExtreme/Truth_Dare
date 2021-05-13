@@ -34,7 +34,7 @@ const theme = createMuiTheme({
 })
 
 function InputField({label, handleSubmit, buttonLabel, 
-    onNameChange, onRoomChange ,error, loading}) {
+    onNameChange, onRoomChange ,error, loading, isJoin}) {
 
     const classes = useStyles();
 
@@ -43,7 +43,7 @@ function InputField({label, handleSubmit, buttonLabel,
             <form 
             noValidate autoComplete="off" 
             onSubmit={handleSubmit}
-            >
+            >   
                 {/* Name field */}
                 <TextField
                 onChange={onNameChange}
@@ -53,8 +53,12 @@ function InputField({label, handleSubmit, buttonLabel,
                 label="User Name"
                 error={error?true:false}
                 />
-                <br/>
+            
+
                 {/* Dynamic Input Field */}
+                {isJoin&&
+                <>
+                <br/>
                 <TextField
                 onChange={onRoomChange}
                 className={classes.input}
@@ -63,6 +67,8 @@ function InputField({label, handleSubmit, buttonLabel,
                 label={label}
                 error={error?true:false}
                 />
+                </>
+                }
 
                 {error && 
                  <Typography 
