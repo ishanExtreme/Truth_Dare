@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerformerFound}) {
+function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerformerFound, handleRemoteCancelEvent}) {
 
     const classes = useStyles();
 
@@ -122,10 +122,11 @@ function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerforme
         }
         switch(code)
         {
-            case 'spin': handleRemoteSpin(msg, params)
+            case 'spin': handleRemoteSpin(msg, params);
             break;
-            case 'performer_found': handlePerformerFound(msg, params)
+            case 'performer_found': handlePerformerFound(msg, params);
             break;
+            case 'perform_cancel': handleRemoteCancelEvent(msg, params);
         }
     }
 

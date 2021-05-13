@@ -10,6 +10,12 @@ import AppBar from '@material-ui/core/AppBar';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import Radio from '@material-ui/core/Radio';
 
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import AssignmentIndOutlinedIcon from '@material-ui/icons/AssignmentIndOutlined';
@@ -17,10 +23,10 @@ import ThreeSixtyIcon from '@material-ui/icons/ThreeSixty';
 import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
-import VideoPlayerDisplay from '../Components/VideoPlayerDisplay';
 
 import './home.css';
 import VideoPlayer from '../Components/VideoPlayer';
+import VideoPlayerDisplay from '../Components/VideoPlayerDisplay';
 
 import useApi from '../hooks/useApi';
 import gameApi from '../api/game';
@@ -64,6 +70,9 @@ const useStyles = makeStyles((theme)=>{
             paddingInline: theme.spacing(1),
             // paddingLeft: theme.spacing(1)
         },
+        performSubmitButton: {
+            margin: theme.spacing(1, 1, 0, 0),
+          },
 
         // mobileContainer: {
 
@@ -95,7 +104,29 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const [notifMsg, setNotifMsg] = useState('');
     // App Bar message
     const [barMsg, setBarMsg] = useState('');
+    // is task giver
+    const [taskGiver, setTaskGiver] = useState(false);
+    // is performer
+    const [performer, setPerformer] = useState(false);
+    // performer form error
+    const [performerError, setPerformerError] = useState(false);
+    // performer choosen task
+    const [taskValue, setTaskValue] = useState('');
+    // form helper
+    const [helperText, setHelperText] = useState("Lets go for dare...")
 
+    // to be run after spinning is completed
+    const cleanUp = ()=>{
+
+        setSpinning(false);
+        setBarMsg('');
+        setTaskGiver(false);
+        setPerformer(false);
+        setPerformerError(false);
+        setTaskValue('');
+        setHelperText("Lets go for dare...");
+
+    }
     useEffect(()=> {
         
         // when a participant connects
@@ -212,9 +243,24 @@ function Home({roomName, room, handleLogout, initial_score}) {
 
     const handlePerformerFound = (msg, params)=>{
         if(params === room.localParticipant.identity)
-            setBarMsg("Choose Truth, Dare or Stare");
+        {
+            handleOpenNotif("Bottle stopped while poiting to You!!!", "info")
+            setPerformer(true);
+        }
         else
             setBarMsg(msg);
+    }
+
+    const handleCancelEvent = ()=>{
+
+        cleanUp();
+        sendMessage("cancelled the game", "perform_cancel", room.localParticipant.identity);
+    }
+
+    const handleRemoteCancelEvent = (msg, params)=>{
+
+        handleOpenNotif(`${params} ${msg}`, "error");
+        cleanUp();
     }
 
     const handleNotifClose = (event, reason)=>{
@@ -226,9 +272,134 @@ function Home({roomName, room, handleLogout, initial_score}) {
           setOpenNotif(false);
     }
 
+    const handleRadioChange = (event)=>{
+        setTaskValue(event.target.value);
+        setHelperText(' ');
+        setPerformerError(false);
+    }
+
+    const handleTaskSubmit = (event)=>{
+        event.preventDefault();
+
+        if(taskValue === "truth")
+        {
+            setHelperText("Speak truth only 😇");
+            setPerformerError(false);
+        }
+        else if(taskValue === "stare")
+        {
+            setHelperText("🧐🧐🧐");
+            setPerformerError(false);
+        }
+        else if(taskValue === "dare")
+        {
+            setHelperText("Be carefull!!! 🤕🤕");
+            setPerformerError(false);
+        }
+        else
+        {
+            setHelperText("Please select an option");
+            setPerformerError(true);
+        }
+
+
+    }
+
+    const RenderSpinning = ()=>{
+
+        if(performer)
+
+            return (
+                <form onSubmit={handleTaskSubmit}>
+                    <FormControl component="fieldset" error={performerError}>
+                        <FormLabel component="legend">Choose Your Task Type</FormLabel>
+                        <RadioGroup aria-label="choose_task" name="choose_task" value={taskValue} onChange={handleRadioChange}>
+                            <FormControlLabel value="truth" control={<Radio />} label="Truth 😐"/>
+                            <FormControlLabel value="dare" control={<Radio />} label="Stare 😳"/>
+                            <FormControlLabel value="stare" control={<Radio />} label="Dare 😲"/>
+                        </RadioGroup>
+                        <FormHelperText>{helperText}</FormHelperText>
+
+                        <Button type="submit" variant="outlined" color="primary" className={classes.performSubmitButton}>
+                            Perform Task
+                        </Button>
+                    </FormControl>
+                </form>
+            );
+
+            else if(taskGiver)
+
+                return (
+                        <>
+                        <Hidden xsDown>
+                        <Grid item>
+                            <ButtonGroup>
+                                <Button
+                                variant="outlined" 
+                                color="primary"
+                                size="large"
+                                endIcon={<AssignmentTurnedInOutlinedIcon />}
+                                >   
+                                Task Completed
+                                </Button>
+
+                                <Button
+                                variant="outlined" 
+                                color="primary"
+                                size="large"
+                                endIcon={<CancelOutlinedIcon />}
+                                >   
+                                Task Not Completed
+                                </Button>
+                            </ButtonGroup>
+                        </Grid>
+                        </Hidden>
+                        
+                    
+                        <Hidden smUp>
+
+                        <Grid item>
+                            <ButtonGroup>
+                                <Button
+                                variant="outlined" 
+                                color="primary"
+                                size="large"
+                                endIcon={<AssignmentTurnedInOutlinedIcon />}
+                                >   
+                                Task Completed
+                                </Button>
+
+                                <Button
+                                variant="outlined" 
+                                color="primary"
+                                size="large"
+                                endIcon={<CancelOutlinedIcon />}
+                                >   
+                                Task Not Completed
+                                </Button>
+                            </ButtonGroup>
+                        </Grid>
+                        </Hidden>
+                        </>
+                );
+            else 
+
+                return (
+                    <Typography 
+                    variant="h6" 
+                    align="center" 
+                    color="secondary">
+                        {barMsg}
+                        <br/>
+                        <CircularProgress color="secondary"/>
+                    </Typography>
+                );
+    }
+
     return (
         
         <div className={classes.root}>
+        {/* dark theme */}
         <ThemeProvider theme={theme}>
             {/* Snack Bar */}
             <Snackbar
@@ -242,6 +413,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
                 </Alert>
 
             </Snackbar>
+            {/* Snack Bar end */}
 
             {/* Main Container */}
             <Grid
@@ -314,6 +486,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             local={true}
                             handleRemoteSpin={handleRemoteSpin}
                             handlePerformerFound={handlePerformerFound}
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}
                             />
                         </Grid>
 
@@ -323,7 +496,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             <VideoPlayer 
                             participant={participants[0]}
                             handleRemoteSpin={handleRemoteSpin}
-                            handlePerformerFound={handlePerformerFound}/>
+                            handlePerformerFound={handlePerformerFound}
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -345,7 +519,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             <VideoPlayer 
                             participant={participants[1]}
                             handleRemoteSpin={handleRemoteSpin}
-                            handlePerformerFound={handlePerformerFound}/>
+                            handlePerformerFound={handlePerformerFound}
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -357,7 +532,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             <VideoPlayer 
                             participant={participants[2]}
                             handleRemoteSpin={handleRemoteSpin}
-                            handlePerformerFound={handlePerformerFound}/>
+                            handlePerformerFound={handlePerformerFound}
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -383,6 +559,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             local={true}
                             handleRemoteSpin={handleRemoteSpin}
                             handlePerformerFound={handlePerformerFound}
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}
                             />
                         </Grid>
 
@@ -392,7 +569,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             <VideoPlayer 
                             participant={participants[0]}
                             handleRemoteSpin={handleRemoteSpin}
-                            handlePerformerFound={handlePerformerFound}/>
+                            handlePerformerFound={handlePerformerFound}
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -404,7 +582,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             <VideoPlayer 
                             participant={participants[1]}
                             handleRemoteSpin={handleRemoteSpin}
-                            handlePerformerFound={handlePerformerFound}/>
+                            handlePerformerFound={handlePerformerFound}
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -416,7 +595,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             <VideoPlayer 
                             participant={participants[2]}
                             handleRemoteSpin={handleRemoteSpin}
-                            handlePerformerFound={handlePerformerFound}/>
+                            handlePerformerFound={handlePerformerFound}
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -440,15 +620,23 @@ function Home({roomName, room, handleLogout, initial_score}) {
                     alignItems="center"
                     >
                         {spinning?
-                        <Typography 
-                        variant="h6" 
-                        align="center" 
-                        color="secondary">
-                            {barMsg}
-                            <br/>
-                            <CircularProgress color="secondary"/>
-                        </Typography>
+                        // While spinning
+                        <>
+
+                            <RenderSpinning />
+                            <Button
+                            onClick={handleCancelEvent}
+                            variant="outlined" 
+                            color="secondary"
+                            size="large"
+                            style={{marginTop: '20px'}}
+                            endIcon={<CancelOutlinedIcon />}
+                            >   
+                            Cancel
+                            </Button>
+                        </>
                         :
+                        // Main Buttons
                         <>
                             <Grid item >
                                 <Button
