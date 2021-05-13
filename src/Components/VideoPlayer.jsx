@@ -14,6 +14,14 @@ import { makeStyles } from '@material-ui/core';
 const useStyles = makeStyles((theme)=>{
 
     return {
+        img: {
+            width: '550px',
+            height: '350px',
+            [theme.breakpoints.down('xs')]: {
+                width: '300px',
+            },
+            backgroundColor: 'black'
+        },
         video: {
             width: '550px',
             height: '300px',
@@ -46,7 +54,7 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-function VideoPlayer({participant, local=false}) {
+function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerformerFound}) {
 
     const classes = useStyles();
 
@@ -91,8 +99,34 @@ function VideoPlayer({participant, local=false}) {
         return Trackarray;
     };
 
-    const handleMessage = (msg)=>{
-        console.log(msg);
+    const handleMessage = (instruction)=>{
+
+        let code="";
+        let msg="";
+        let params="";
+
+        // params present
+        // format-> #code%params*msg
+        if(instruction.includes("%"))
+        {
+            code = instruction.substring(instruction.indexOf("#")+1, instruction.indexOf("%"));
+            params = instruction.substring(instruction.indexOf("%")+1, instruction.indexOf("*"))
+            msg = instruction.substring(instruction.indexOf("*")+1);
+        }
+        // params not present
+        // format-> #code*msg
+        else
+        {
+            code = instruction.substring(instruction.indexOf("#")+1, instruction.indexOf("*"));
+            msg = instruction.substring(instruction.indexOf("*")+1);
+        }
+        switch(code)
+        {
+            case 'spin': handleRemoteSpin(msg, params)
+            break;
+            case 'performer_found': handlePerformerFound(msg, params)
+            break;
+        }
     }
 
     const getNonNullDataTracks = (trackMap)=>{
@@ -246,13 +280,18 @@ function VideoPlayer({participant, local=false}) {
             </div>
 
            <CardContent>
+
                {/* Video */}
+               {videoOn?
                <video 
                playsInline 
                autoPlay 
                ref={videoRef}
                className={classes.video}
                />
+               :
+               <img src="./extreme_logo.png" className={classes.img}/>
+               }
 
                {/* Audio */}
                <audio 

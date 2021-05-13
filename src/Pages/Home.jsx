@@ -7,6 +7,9 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import AppBar from '@material-ui/core/AppBar';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import AssignmentIndOutlinedIcon from '@material-ui/icons/AssignmentIndOutlined';
@@ -14,9 +17,19 @@ import ThreeSixtyIcon from '@material-ui/icons/ThreeSixty';
 import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
+import VideoPlayerDisplay from '../Components/VideoPlayerDisplay';
 
 import './home.css';
 import VideoPlayer from '../Components/VideoPlayer';
+
+import useApi from '../hooks/useApi';
+import gameApi from '../api/game';
+
+
+// for snackbar
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme)=>{
     return {
@@ -66,10 +79,22 @@ const theme = createMuiTheme({
     }
 })
 
-function Home({roomName, room, handleLogout}) {
+function Home({roomName, room, handleLogout, initial_score}) {
 
     // participants list
     const [participants, setParticipants] = useState([]);
+    // score
+    const [score, setScore] = useState(initial_score);
+    // spinning the bottle
+    const [spinning, setSpinning] = useState(false); 
+    // open snackbar
+    const [openNotif, setOpenNotif] = useState(false);
+    // notif type
+    const [notifType, setNotifType] = useState('success');
+    // notif message
+    const [notifMsg, setNotifMsg] = useState('');
+    // App Bar message
+    const [barMsg, setBarMsg] = useState('');
 
     useEffect(()=> {
         
@@ -105,17 +130,119 @@ function Home({roomName, room, handleLogout}) {
 
     const classes = useStyles();
 
-    const sendMessage = ()=> {
+    const getPerformerApi = useApi(gameApi.performer);
+
+    // format of instruction codes are=>
+    // #code%params*msg
+    // params are comma seperated(not implemented)
+    // %params is optional
+    const sendMessage = (msg, code, params="")=> {
         // Get the LocalDataTrack that we published to the room.
         const [localDataTrackPublication] = [...room.localParticipant.dataTracks.values()];
-        const fullMessage = `${room.localParticipant.identity} says: Hello its wroking!!!`;
-        localDataTrackPublication.track.send(fullMessage);
+        
+        if(params)
+        {
+            const instruction = `#${code}%${params}*${msg}`;
+            localDataTrackPublication.track.send(instruction);
+        }
+        else
+        {
+            const instruction = `#${code}*${msg}`;
+            localDataTrackPublication.track.send(instruction);
+        }
+
+
+        switch(code)
+        {
+            case "spin": handleSpin();
+            break;
+            
+            case "performer_found": handlePerformerFound(msg, params);
+            break;
+        }
+    }
+
+    // types: error, warning, info, success
+    const handleOpenNotif = (msg, type)=>{
+        setNotifMsg(msg);
+        setNotifType(type);
+        setOpenNotif(true);
+    }
+    // handle spin event for rest
+    const handleRemoteSpin = (msg, params)=>{
+        handleOpenNotif(`${params} ${msg}`, "success");
+        setSpinning(true);
+        setBarMsg("Spinning...");
+    }
+
+    // hanle spin event for spinner
+    const handleSpin = async ()=>{
+
+        // to prevent multiple spin requests
+        if(!spinning)
+        {
+            setSpinning(true);
+            setBarMsg("Spinning...");
+            
+            // get random participant from server
+            const result = await getPerformerApi.request({room: roomName});
+
+            if(!result.ok)
+            {
+                if(result.data) {
+                    // set error notif
+                    handleOpenNotif(result.data.error, 'error');
+                    sendMessage(result.data.error, 'error')
+                }
+                else {
+                    // set error notif
+                    handleOpenNotif("An unexpected error occurred.", 'error');
+                    sendMessage("An unexpected error occurred.", 'error');
+                }
+                setSpinning(false)
+                return;
+            }
+
+            // wait for some time before displaying result(10 seconds delay)
+            setTimeout(()=>sendMessage(`Bottle 🍾 is pointing towards ${result.data.participant}.\nWaiting for ${result.data.participant} to choose`, "performer_found", result.data.participant),  5000)
+            // sendMessage(`Bottle is pointing towards ${result.participant}. Waiting for ${result.participant} to choose`, "performer_found")
+        }
+
+    }
+
+    const handlePerformerFound = (msg, params)=>{
+        if(params === room.localParticipant.identity)
+            setBarMsg("Choose Truth, Dare or Stare");
+        else
+            setBarMsg(msg);
+    }
+
+    const handleNotifClose = (event, reason)=>{
+        // from material UI docs
+        if (reason === 'clickaway') {
+            return;
+          }
+      
+          setOpenNotif(false);
     }
 
     return (
         
         <div className={classes.root}>
         <ThemeProvider theme={theme}>
+            {/* Snack Bar */}
+            <Snackbar
+            anchorOrigin={{vertical: 'top', horizontal: 'center'}} 
+            open={openNotif} 
+            autoHideDuration={120000} 
+            onClose={handleNotifClose}>
+
+                <Alert onClose={handleNotifClose} severity={notifType}>
+                    {notifMsg}
+                </Alert>
+
+            </Snackbar>
+
             {/* Main Container */}
             <Grid
             container
@@ -140,7 +267,7 @@ function Home({roomName, room, handleLogout}) {
                                     variant="outlined" 
                                     color="secondary"
                                     endIcon={<FileCopyOutlinedIcon/>}>
-                                        111554
+                                        {roomName}
                                     </Button>
                             </Paper>
                         </Grid>
@@ -162,7 +289,7 @@ function Home({roomName, room, handleLogout}) {
                                     align="center"
                                     color="secondary"
                                     className={classes.inviteText}> 
-                                        21
+                                        {score}
                                     </Typography>
                             </Paper>
                         </Grid>
@@ -181,14 +308,25 @@ function Home({roomName, room, handleLogout}) {
                     container
                     justify="space-between">
                         <Grid item>
-                            {/* Local Participant */}
-                            <VideoPlayer participant={room.localParticipant} local={true}/>
+                            {/* Local Participant always availaible*/}
+                            <VideoPlayer 
+                            participant={room.localParticipant} 
+                            local={true}
+                            handleRemoteSpin={handleRemoteSpin}
+                            handlePerformerFound={handlePerformerFound}
+                            />
                         </Grid>
 
                         <Grid item>
                             {/* Participant 1 */}
-                            {participants[0]&&
-                            <VideoPlayer participant={participants[0]}/>}
+                            {participants[0]?
+                            <VideoPlayer 
+                            participant={participants[0]}
+                            handleRemoteSpin={handleRemoteSpin}
+                            handlePerformerFound={handlePerformerFound}/>
+                            :
+                            <VideoPlayerDisplay />
+                            }
                         </Grid>
                     </Grid>
                 </Grid>
@@ -203,14 +341,26 @@ function Home({roomName, room, handleLogout}) {
                     justify="space-between">
                         <Grid item>
                             {/* participant 2 */}
-                            {participants[1]&&
-                            <VideoPlayer participant={participants[1]}/>}
+                            {participants[1]?
+                            <VideoPlayer 
+                            participant={participants[1]}
+                            handleRemoteSpin={handleRemoteSpin}
+                            handlePerformerFound={handlePerformerFound}/>
+                            :
+                            <VideoPlayerDisplay />
+                            }
                         </Grid>
 
                         <Grid item>
                             {/* participant 3 */}
-                            {participants[2]&&
-                            <VideoPlayer participant={participants[2]}/>}
+                            {participants[2]?
+                            <VideoPlayer 
+                            participant={participants[2]}
+                            handleRemoteSpin={handleRemoteSpin}
+                            handlePerformerFound={handlePerformerFound}/>
+                            :
+                            <VideoPlayerDisplay />
+                            }
                         </Grid>
                     </Grid>
                 </Grid>
@@ -228,25 +378,48 @@ function Home({roomName, room, handleLogout}) {
                     >
                         <Grid item className={classes.mobileGridItem}>
                             {/* Local participant video */}
-                            <VideoPlayer participant={room.localParticipant} local={true}/>
+                            <VideoPlayer 
+                            participant={room.localParticipant} 
+                            local={true}
+                            handleRemoteSpin={handleRemoteSpin}
+                            handlePerformerFound={handlePerformerFound}
+                            />
                         </Grid>
 
                         <Grid item className={classes.mobileGridItem}>
                             {/* participant 1 */}
-                            {participants[0]&&
-                            <VideoPlayer participant={participants[0]}/>}
+                            {participants[0]?
+                            <VideoPlayer 
+                            participant={participants[0]}
+                            handleRemoteSpin={handleRemoteSpin}
+                            handlePerformerFound={handlePerformerFound}/>
+                            :
+                            <VideoPlayerDisplay />
+                            }
                         </Grid>
 
                         <Grid item className={classes.mobileGridItem}>
                             {/* participant 2 */}
-                            {participants[1]&&
-                            <VideoPlayer participant={participants[1]}/>}
+                            {participants[1]?
+                            <VideoPlayer 
+                            participant={participants[1]}
+                            handleRemoteSpin={handleRemoteSpin}
+                            handlePerformerFound={handlePerformerFound}/>
+                            :
+                            <VideoPlayerDisplay />
+                            }
                         </Grid>
 
                         <Grid item className={classes.mobileGridItem}>
-                            {/* participant 2 */}
-                            {participants[2]&&
-                            <VideoPlayer participant={participants[2]}/>}
+                            {/* participant 3 */}
+                            {participants[2]?
+                            <VideoPlayer 
+                            participant={participants[2]}
+                            handleRemoteSpin={handleRemoteSpin}
+                            handlePerformerFound={handlePerformerFound}/>
+                            :
+                            <VideoPlayerDisplay />
+                            }
                         </Grid>
                         
                     </Grid>
@@ -266,107 +439,44 @@ function Home({roomName, room, handleLogout}) {
                     direction="column"
                     alignItems="center"
                     >
-                        <Grid item >
-                            <Button
-                            onClick={sendMessage}
-                            variant="outlined" 
-                            color="secondary"
-                            size="large"
-                            style={{marginRight: '20px', marginBottom: '20px'}}
-                            endIcon={<ThreeSixtyIcon />}
-                            >   
-                            SPIN
-                            </Button>
-                        </Grid>
-
-                        {/* Task Button Group small to xl view */}
-                        <Hidden xsDown>
-                            <Grid item>
-                                <ButtonGroup>
-                                    <Button
-                                    variant="outlined" 
-                                    color="primary"
-                                    size="large"
-                                    endIcon={<AssignmentTurnedInOutlinedIcon />}
-                                    >   
-                                    Task Completed
-                                    </Button>
-
-                                    <Button
-                                    variant="contained" 
-                                    color="primary"
-                                    size="large"
-                                    endIcon={<AssignmentIndOutlinedIcon />}
-                                    >   
-                                    Give Task
-                                    </Button>
-
-                                    <Button
-                                    variant="outlined" 
-                                    color="primary"
-                                    size="large"
-                                    endIcon={<CancelOutlinedIcon />}
-                                    >   
-                                    Task Not Completed
-                                    </Button>
-                                </ButtonGroup>
-                            </Grid>
-                        </Hidden>
-                        {/* End small to xl view */}
-
-                        {/* Task Button Group xs view */}
-                        <Hidden smUp>
-
-                            <Grid item>
-
+                        {spinning?
+                        <Typography 
+                        variant="h6" 
+                        align="center" 
+                        color="secondary">
+                            {barMsg}
+                            <br/>
+                            <CircularProgress color="secondary"/>
+                        </Typography>
+                        :
+                        <>
+                            <Grid item >
                                 <Button
-                                    variant="contained" 
-                                    color="primary"
-                                    size="large"
-                                    style={{marginRight: '20px', marginBottom: '20px'}}
-                                    endIcon={<AssignmentIndOutlinedIcon />}
-                                    >   
-                                    Give Task
+                                onClick={()=>sendMessage("spun the bottle", "spin", room.localParticipant.identity)}
+                                variant="outlined" 
+                                color="secondary"
+                                size="large"
+                                style={{marginBottom: '20px'}}
+                                endIcon={<ThreeSixtyIcon />}
+                                >   
+                                SPIN
                                 </Button>
-
                             </Grid>
+
                             <Grid item>
-                                <ButtonGroup>
-                                    <Button
-                                    variant="outlined" 
-                                    color="primary"
-                                    size="large"
-                                    endIcon={<AssignmentTurnedInOutlinedIcon />}
-                                    >   
-                                    Task Completed
-                                    </Button>
-
-                                    <Button
-                                    variant="outlined" 
-                                    color="primary"
-                                    size="large"
-                                    endIcon={<CancelOutlinedIcon />}
-                                    >   
-                                    Task Not Completed
-                                    </Button>
-                                </ButtonGroup>
+                                <Button
+                                onClick={handleLogout}
+                                variant="outlined" 
+                                color="secondary"
+                                size="large"
+                                style={{marginTop: '20px '}}
+                                endIcon={< ExitToAppOutlinedIcon/>}
+                                >   
+                                Leave Room
+                                </Button>
                             </Grid>
-                        </Hidden>
-                        {/* End xs view */}
-
-                        <Grid item>
-                            <Button
-                            onClick={handleLogout}
-                            variant="outlined" 
-                            color="secondary"
-                            size="large"
-                            style={{marginRight: '20px', marginTop: '20px '}}
-                            endIcon={< ExitToAppOutlinedIcon/>}
-                            >   
-                            Leave Room
-                            </Button>
-                        </Grid>
-
+                        </>
+                        }
                     </Grid>
                 </AppBar>
                 {/* Bar End */}

@@ -7,6 +7,7 @@ import useApi from '../hooks/useApi';
 import videoApi from '../api/video';
 import roomApi from '../api/room';
 
+
 function Main(props) {
     const [userName, setUserName] = useState('');
     const [roomName, setRoomName] = useState('');
@@ -15,6 +16,9 @@ function Main(props) {
     const [room, setRoom] = useState(null);
     const getTokenApi = useApi(videoApi.video);
     const createRoomApi = useApi(roomApi.room);
+    const joinRoomApi = useApi(roomApi.join);
+    // stores user score
+    let score=0;
 
     const handleNameChange = useCallback(event=>{
         setUserName(event.target.value);
@@ -66,10 +70,11 @@ function Main(props) {
 
         if(userName === '') return "User Name is required!!!"
         else if(roomName === '') return "Room Name is required!!!"
-        else if(userName.length < 4 || userName.length > 128) return "User Name must be between 4 to 128 characters long"
-        else if(roomName.length < 4 || roomName.length > 128) return "Room Name/ID must be between 4 to 128 characters long"
-
-        return ""
+        else if(userName.length < 4 || userName.length > 128) return "User Name must be between 4 to 128 characters long";
+        else if(roomName.length < 4 || roomName.length > 128) return "Room Name/ID must be between 4 to 128 characters long";
+        else if(userName.includes("*") || userName.includes("#") || userName.includes("%"))
+                return `User Name must not contain "*", "#" or "%"`;
+        return "";
     }
 
     const handleJoinRoom = useCallback(async event=>{
@@ -97,9 +102,17 @@ function Main(props) {
                 return;
             }
 
+            const join_result = await joinRoomApi.request(body);
+
+            if(!join_result.ok){
+                if(join_result.data) setError(join_result.data.error);
+                else setError("An unexpected error occurred.");
+                setLoading(false);
+                return;
+            }
+
             try
             {
-                
                 const room = await connect(result.data.token, {
                     name: roomName,
                 });
@@ -109,7 +122,7 @@ function Main(props) {
                 // publish the track
                 await room.localParticipant.publishTrack(dataTrack);
 
-
+                score = join_result.data.score;
                 setRoom(room);
             }
             catch(err)
@@ -139,7 +152,7 @@ function Main(props) {
         }
         else
         {
-            const create_room_body = {room: roomName};
+            const create_room_body = {identity: userName, room: roomName};
             const room_result = await createRoomApi.request(create_room_body);
 
             if(!room_result.ok)
@@ -192,7 +205,7 @@ function Main(props) {
     if(room)
     {
         render = (
-            <Home roomName={roomName} room={room} handleLogout={handleLogout}/>
+            <Home roomName={roomName} room={room} handleLogout={handleLogout} initial_score={score}/>
             
         );
     }

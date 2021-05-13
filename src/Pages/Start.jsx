@@ -13,6 +13,7 @@ function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreate
         resetError();
     };
 
+
     let render;
     if(component === 'option')
     {
