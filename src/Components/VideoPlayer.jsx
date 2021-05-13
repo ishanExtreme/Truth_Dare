@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerformerFound, handleRemoteCancelEvent}) {
+function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerformerFound, handleRemoteCancelEvent, handleTaskerFound, handleRemoteError, handleSpinOverEvent}) {
 
     const classes = useStyles();
 
@@ -112,6 +112,8 @@ function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerforme
             code = instruction.substring(instruction.indexOf("#")+1, instruction.indexOf("%"));
             params = instruction.substring(instruction.indexOf("%")+1, instruction.indexOf("*"))
             msg = instruction.substring(instruction.indexOf("*")+1);
+            
+            params = params.split(",");
         }
         // params not present
         // format-> #code*msg
@@ -124,9 +126,16 @@ function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerforme
         {
             case 'spin': handleRemoteSpin(msg, params);
             break;
-            case 'performer_found': handlePerformerFound(msg, params);
+            case 'performer_found': handlePerformerFound(msg, params[0]);
             break;
-            case 'perform_cancel': handleRemoteCancelEvent(msg, params);
+            case 'perform_cancel': handleRemoteCancelEvent(msg, params[0]);
+            break;
+            case 'tasker_found': handleTaskerFound(msg, params[0], params[1]);
+            break;
+            case 'error': handleRemoteError(msg);
+            break;
+            case 'spin_over': handleSpinOverEvent(msg, params[0], params[1]);
+            break;
         }
     }
 
@@ -283,16 +292,12 @@ function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerforme
            <CardContent>
 
                {/* Video */}
-               {videoOn?
                <video 
                playsInline 
                autoPlay 
                ref={videoRef}
                className={classes.video}
                />
-               :
-               <img src="./extreme_logo.png" className={classes.img}/>
-               }
 
                {/* Audio */}
                <audio 

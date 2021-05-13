@@ -72,7 +72,11 @@ const useStyles = makeStyles((theme)=>{
         },
         performSubmitButton: {
             margin: theme.spacing(1, 1, 0, 0),
-          },
+        },
+        progress: {
+            marginTop: theme.spacing(3),
+            marginLeft: theme.spacing(5)
+        }
 
         // mobileContainer: {
 
@@ -114,7 +118,13 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const [taskValue, setTaskValue] = useState('');
     // form helper
     const [helperText, setHelperText] = useState("Lets go for dare...")
+    // when user start performing task
+    const [performingTask, setPerformingTask] = useState(false);
+    // while assigning score
+    const [assigningScore, setAssigningScore] = useState(false);
 
+    // stores performer name in task_giver session
+    let performer_identity = "";
     // to be run after spinning is completed
     const cleanUp = ()=>{
 
@@ -125,6 +135,9 @@ function Home({roomName, room, handleLogout, initial_score}) {
         setPerformerError(false);
         setTaskValue('');
         setHelperText("Lets go for dare...");
+        setPerformingTask(false);
+        performer_identity = "";
+        setAssigningScore(false);
 
     }
     useEffect(()=> {
@@ -132,6 +145,9 @@ function Home({roomName, room, handleLogout, initial_score}) {
         // when a participant connects
         const participantConnected = participant => {
             setParticipants(prevParticipants=> [...prevParticipants, participant]);
+            
+            // notify when new participant joins
+            handleOpenNotif(`${participant.identity} joined`, "success");
         };
         
         // when a participant disconnects
@@ -139,6 +155,9 @@ function Home({roomName, room, handleLogout, initial_score}) {
             setParticipants(prevParticipants=> 
                 prevParticipants.filter(p=> p!==participant)
             );
+            
+            // notify when participant leaves
+            handleOpenNotif(`${participant.identity} left`, "warning");
         };
 
         
@@ -162,10 +181,12 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const classes = useStyles();
 
     const getPerformerApi = useApi(gameApi.performer);
+    const getTaskerApi = useApi(gameApi.task_giver);
+    const scoreUpdateApi = useApi(gameApi.score_update);
 
     // format of instruction codes are=>
     // #code%params*msg
-    // params are comma seperated(not implemented)
+    // params are comma seperated
     // %params is optional
     const sendMessage = (msg, code, params="")=> {
         // Get the LocalDataTrack that we published to the room.
@@ -189,6 +210,16 @@ function Home({roomName, room, handleLogout, initial_score}) {
             break;
             
             case "performer_found": handlePerformerFound(msg, params);
+            break;
+
+            case "tasker_found": 
+                params = params.split(",");
+                handleTaskerFound(msg, params[0], params[1]);
+            break;
+
+            case "spin_over":
+                params = params.split(",");
+                handleSpinOverEvent(msg, params[0], params[1]);
             break;
         }
     }
@@ -230,25 +261,96 @@ function Home({roomName, room, handleLogout, initial_score}) {
                     handleOpenNotif("An unexpected error occurred.", 'error');
                     sendMessage("An unexpected error occurred.", 'error');
                 }
-                setSpinning(false)
+                cleanUp();
                 return;
             }
 
             // wait for some time before displaying result(10 seconds delay)
-            setTimeout(()=>sendMessage(`Bottle 🍾 is pointing towards ${result.data.participant}.\nWaiting for ${result.data.participant} to choose`, "performer_found", result.data.participant),  5000)
+            setTimeout(()=>sendMessage(`Bottle 🍾 is pointing towards ${result.data.participant}.Waiting for ${result.data.participant} to choose`, "performer_found", result.data.participant),  5000)
             // sendMessage(`Bottle is pointing towards ${result.participant}. Waiting for ${result.participant} to choose`, "performer_found")
         }
 
     }
 
+    const handleSpinOverEvent = (msg, score, performer)=> {
+
+        if(performer === room.localParticipant.identity)
+        {
+            if(score === '1'){
+                setScore(score+1);
+                handleOpenNotif("Congratulations you successfully completed the task 🎉🎉", "success");
+
+            }
+            else
+            {
+                handleOpenNotif("You failed to complete the task 🙄🙄", "error");
+            }
+            cleanUp();
+            
+        }
+        else
+        {
+            handleOpenNotif(msg, "info");
+            cleanUp();
+        }
+    }
     const handlePerformerFound = (msg, params)=>{
         if(params === room.localParticipant.identity)
         {
-            handleOpenNotif("Bottle stopped while poiting to You!!!", "info")
+            handleOpenNotif("Bottle stopped while pointing to You!!!", "info")
             setPerformer(true);
         }
         else
             setBarMsg(msg);
+    }
+
+    const handleTaskerFound = (msg, tasker, performer)=>{
+
+        if(tasker === room.localParticipant.identity)
+        {
+            handleOpenNotif(`You are choosen to assign task to ${performer}`, "info")
+            setTaskGiver(true);
+        }
+        else
+            setBarMsg(msg);
+    }
+
+    const handleRemoteError = (msg)=>{
+        
+        handleOpenNotif(msg+'. Please press "Cancel"', "error");
+    }
+
+    const handleScoreUpdate = async (taskCompleted)=> {
+
+        setAssigningScore(true);
+
+        let score=0;
+        if(taskCompleted) score = 1;
+
+        const result = await scoreUpdateApi({roomId: room.sid, identity: performer_identity});
+
+        if(!result.ok)
+            {
+                if(result.data) {
+                    // set error notif
+                    handleOpenNotif(result.data.error, 'error');
+                    sendMessage(result.data.error, 'error')
+                }
+                else {
+                    // set error notif
+                    handleOpenNotif("An unexpected error occurred.", 'error');
+                    sendMessage("An unexpected error occurred.", 'error');
+                }
+                cleanUp();
+                return;
+            }
+
+            // msg, code, params
+            if(score === 1)
+                sendMessage(`${performer_identity} successfully completed the task`, "spin_over", `${score},${performer_identity}`);
+            else
+                sendMessage(`${performer_identity} was not able to complete the task`, "spin_over", `${score},${performer_identity}`);
+
     }
 
     const handleCancelEvent = ()=>{
@@ -278,23 +380,55 @@ function Home({roomName, room, handleLogout, initial_score}) {
         setPerformerError(false);
     }
 
-    const handleTaskSubmit = (event)=>{
+    const handleTaskSubmit = async (event)=>{
         event.preventDefault();
 
-        if(taskValue === "truth")
+        if(taskValue)
         {
-            setHelperText("Speak truth only 😇");
-            setPerformerError(false);
-        }
-        else if(taskValue === "stare")
-        {
-            setHelperText("🧐🧐🧐");
-            setPerformerError(false);
-        }
-        else if(taskValue === "dare")
-        {
-            setHelperText("Be carefull!!! 🤕🤕");
-            setPerformerError(false);
+
+            if(taskValue === "truth")
+            {
+                setHelperText("Speak truth only 😇");
+                setPerformerError(false);
+            }
+            else if(taskValue === "stare")
+            {
+                setHelperText("🧐🧐🧐");
+                setPerformerError(false);
+            }
+            else if(taskValue === "dare")
+            {
+                setHelperText("Be carefull!!! 🤕🤕");
+                setPerformerError(false);
+            }
+
+            setPerformingTask(true);
+            
+            // get random participant from server
+            const result = await getTaskerApi.request({
+                room: roomName, 
+                identity: room.localParticipant.identity
+            });
+
+            if(!result.ok)
+            {
+                if(result.data) {
+                    // set error notif
+                    handleOpenNotif(result.data.error, 'error');
+                    sendMessage(result.data.error, 'error')
+                }
+                else {
+                    // set error notif
+                    handleOpenNotif("An unexpected error occurred.", 'error');
+                    sendMessage("An unexpected error occurred.", 'error');
+                }
+                cleanUp();
+                return;
+            }
+
+            
+            sendMessage(`${result.data.participant} will assign and judge the task performed by ${room.localParticipant.identity}. Waiting for task to complete`, "tasker_found", `${result.data.participant},${room.localParticipant.identity}`);
+
         }
         else
         {
@@ -319,10 +453,15 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             <FormControlLabel value="stare" control={<Radio />} label="Dare 😲"/>
                         </RadioGroup>
                         <FormHelperText>{helperText}</FormHelperText>
-
-                        <Button type="submit" variant="outlined" color="primary" className={classes.performSubmitButton}>
+                        {
+                            performingTask?
+                            <CircularProgress color="prmary" className={classes.progress}/>
+                            :
+                            <Button type="submit" variant="outlined" color="primary" className={classes.performSubmitButton}>
                             Perform Task
-                        </Button>
+                            </Button>
+                        }
+                        
                     </FormControl>
                 </form>
             );
@@ -330,57 +469,70 @@ function Home({roomName, room, handleLogout, initial_score}) {
             else if(taskGiver)
 
                 return (
-                        <>
-                        <Hidden xsDown>
-                        <Grid item>
-                            <ButtonGroup>
-                                <Button
-                                variant="outlined" 
-                                color="primary"
-                                size="large"
-                                endIcon={<AssignmentTurnedInOutlinedIcon />}
-                                >   
-                                Task Completed
-                                </Button>
+                <>
+                {
+                    assigningScore?
+                    <CircularProgress color="prmary" className={classes.progress}/>
+                    :
+                    <>
+                    <Hidden xsDown>
+                    <Grid item>
+                        <ButtonGroup>
+                            <Button
+                            onClick={()=> handleScoreUpdate(true)}
+                            variant="outlined" 
+                            color="primary"
+                            size="large"
+                            endIcon={<AssignmentTurnedInOutlinedIcon />}
+                            >   
+                            Task Completed
+                            </Button>
 
-                                <Button
-                                variant="outlined" 
-                                color="primary"
-                                size="large"
-                                endIcon={<CancelOutlinedIcon />}
-                                >   
-                                Task Not Completed
-                                </Button>
-                            </ButtonGroup>
-                        </Grid>
-                        </Hidden>
+                            <Button
+                            onClick={()=> handleScoreUpdate(false)}
+                            variant="outlined" 
+                            color="primary"
+                            size="large"
+                            endIcon={<CancelOutlinedIcon />}
+                            >   
+                            Task Not Completed
+                            </Button>
+                        </ButtonGroup>
+                    </Grid>
+                    </Hidden>
+
+
+                    <Hidden smUp>
+
+                    <Grid item>
+                        <ButtonGroup>
+                            <Button
+                            onClick={()=> handleScoreUpdate(true)}
+                            variant="outlined" 
+                            color="primary"
+                            size="large"
+                            endIcon={<AssignmentTurnedInOutlinedIcon />}
+                            >   
+                            Task Completed
+                            </Button>
+
+                            <Button
+                            onClick={()=> handleScoreUpdate(false)}
+                            variant="outlined" 
+                            color="primary"
+                            size="large"
+                            endIcon={<CancelOutlinedIcon />}
+                            >   
+                            Task Not Completed
+                            </Button>
+                        </ButtonGroup>
+                    </Grid>
+                    </Hidden>
+                    </>
+                }
+                
+                </>
                         
-                    
-                        <Hidden smUp>
-
-                        <Grid item>
-                            <ButtonGroup>
-                                <Button
-                                variant="outlined" 
-                                color="primary"
-                                size="large"
-                                endIcon={<AssignmentTurnedInOutlinedIcon />}
-                                >   
-                                Task Completed
-                                </Button>
-
-                                <Button
-                                variant="outlined" 
-                                color="primary"
-                                size="large"
-                                endIcon={<CancelOutlinedIcon />}
-                                >   
-                                Task Not Completed
-                                </Button>
-                            </ButtonGroup>
-                        </Grid>
-                        </Hidden>
-                        </>
                 );
             else 
 
@@ -487,6 +639,9 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteSpin={handleRemoteSpin}
                             handlePerformerFound={handlePerformerFound}
                             handleRemoteCancelEvent={handleRemoteCancelEvent}
+                            handleTaskerFound={handleTaskerFound}
+                            handleRemoteError={handleRemoteError}
+                            handleSpinOverEvent={handleSpinOverEvent}
                             />
                         </Grid>
 
@@ -497,7 +652,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             participant={participants[0]}
                             handleRemoteSpin={handleRemoteSpin}
                             handlePerformerFound={handlePerformerFound}
-                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}
+                            handleTaskerFound={handleTaskerFound}
+                            handleRemoteError={handleRemoteError}
+                            handleSpinOverEvent={handleSpinOverEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -520,7 +678,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             participant={participants[1]}
                             handleRemoteSpin={handleRemoteSpin}
                             handlePerformerFound={handlePerformerFound}
-                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}
+                            handleTaskerFound={handleTaskerFound}
+                            handleRemoteError={handleRemoteError}
+                            handleSpinOverEvent={handleSpinOverEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -533,7 +694,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             participant={participants[2]}
                             handleRemoteSpin={handleRemoteSpin}
                             handlePerformerFound={handlePerformerFound}
-                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}
+                            handleTaskerFound={handleTaskerFound}
+                            handleRemoteError={handleRemoteError}
+                            handleSpinOverEvent={handleSpinOverEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -560,6 +724,9 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteSpin={handleRemoteSpin}
                             handlePerformerFound={handlePerformerFound}
                             handleRemoteCancelEvent={handleRemoteCancelEvent}
+                            handleTaskerFound={handleTaskerFound}
+                            handleRemoteError={handleRemoteError}
+                            handleSpinOverEvent={handleSpinOverEvent}
                             />
                         </Grid>
 
@@ -570,7 +737,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             participant={participants[0]}
                             handleRemoteSpin={handleRemoteSpin}
                             handlePerformerFound={handlePerformerFound}
-                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}
+                            handleTaskerFound={handleTaskerFound}
+                            handleRemoteError={handleRemoteError}
+                            handleSpinOverEvent={handleSpinOverEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -583,7 +753,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             participant={participants[1]}
                             handleRemoteSpin={handleRemoteSpin}
                             handlePerformerFound={handlePerformerFound}
-                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}
+                            handleTaskerFound={handleTaskerFound}
+                            handleRemoteError={handleRemoteError}
+                            handleSpinOverEvent={handleSpinOverEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -596,7 +769,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             participant={participants[2]}
                             handleRemoteSpin={handleRemoteSpin}
                             handlePerformerFound={handlePerformerFound}
-                            handleRemoteCancelEvent={handleRemoteCancelEvent}/>
+                            handleRemoteCancelEvent={handleRemoteCancelEvent}
+                            handleTaskerFound={handleTaskerFound}
+                            handleRemoteError={handleRemoteError}
+                            handleSpinOverEvent={handleSpinOverEvent}/>
                             :
                             <VideoPlayerDisplay />
                             }
