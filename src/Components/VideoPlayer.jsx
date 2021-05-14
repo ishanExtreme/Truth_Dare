@@ -14,14 +14,6 @@ import { makeStyles } from '@material-ui/core';
 const useStyles = makeStyles((theme)=>{
 
     return {
-        img: {
-            width: '550px',
-            height: '350px',
-            [theme.breakpoints.down('xs')]: {
-                width: '300px',
-            },
-            backgroundColor: 'black'
-        },
         video: {
             width: '550px',
             height: '300px',

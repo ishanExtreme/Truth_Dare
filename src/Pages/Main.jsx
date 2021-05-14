@@ -137,7 +137,8 @@ function Main(props) {
             }
             catch(err)
             {
-                setError("Room does not exists");
+                // ---------------SEE---------------------
+                setError(err.message);
                 setLoading(false);
             }
 
@@ -232,6 +233,8 @@ function Main(props) {
             error={error}
             loading={loading}
             resetError={resetError}
+            name={userName}
+            room={roomName}
             />
         );
     }

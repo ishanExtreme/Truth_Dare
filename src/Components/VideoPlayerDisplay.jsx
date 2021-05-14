@@ -5,17 +5,27 @@ import CardContent from '@material-ui/core/CardContent';
 import IconButton from '@material-ui/core/IconButton';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import { makeStyles } from '@material-ui/core';
+import Avatar from '@material-ui/core/Avatar';
 
 const useStyles = makeStyles((theme)=>{
 
     return {
         img: {
-            width: '550px',
-            height: '350px',
+            width: '350px',
+            height: '300px',
             [theme.breakpoints.down('xs')]: {
                 width: '300px',
             },
-            backgroundColor: 'black'
+        },
+        imgContainer: {
+            display: "flex",
+            width: '550px',
+            [theme.breakpoints.down('xs')]: {
+                width: '300px',
+            },
+            backgroundColor: '#424242',
+            justifyContent: 'center',
+            alignItems: 'center',
         },
         root: {
             display: "flex",
@@ -37,7 +47,7 @@ const useStyles = makeStyles((theme)=>{
             width: '100%',
             textAlign: 'center',
             marginLeft: '80px'
-        }
+        },
     };
 });
 
@@ -67,9 +77,9 @@ function VideoPlayerDisplay(props) {
 
             </div>
 
-           <CardContent>
+           <CardContent className={classes.imgContainer}>
                {/* Image here */}
-               <img src="./extreme_logo.png" className={classes.img}/>
+               <Avatar variant="circle" alt="Empty" src="./empty.png" className={classes.img}/>
            </CardContent>
         </Card>
     );

@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { makeStyles, createMuiTheme, ThemeProvider, withWidth } from '@material-ui/core';
+import {motion, useAnimation} from 'framer-motion';
 import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Paper from '@material-ui/core/Paper';
@@ -7,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import AppBar from '@material-ui/core/AppBar';
+import Avatar from '@material-ui/core/Avatar';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -16,9 +18,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Radio from '@material-ui/core/Radio';
-
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
-import AssignmentIndOutlinedIcon from '@material-ui/icons/AssignmentIndOutlined';
 import ThreeSixtyIcon from '@material-ui/icons/ThreeSixty';
 import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
 import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
@@ -30,6 +30,7 @@ import VideoPlayerDisplay from '../Components/VideoPlayerDisplay';
 
 import useApi from '../hooks/useApi';
 import gameApi from '../api/game';
+import RuleModal from '../Components/RuleModal';
 
 
 // for snackbar
@@ -43,9 +44,11 @@ const useStyles = makeStyles((theme)=>{
             flexGrow: 1,
             padding: theme.spacing(3),
             backgroundColor: '#212121',
+            height: '100%'
         },
         container: {
             backgroundColor: '#212121',
+            height: '100%'
         },
         contentBox: {
             display: 'inline-block',
@@ -76,6 +79,22 @@ const useStyles = makeStyles((theme)=>{
         progress: {
             marginTop: theme.spacing(3),
             marginLeft: theme.spacing(5)
+        },
+        snackNotif: {
+            maxWidth: '600px',
+            [theme.breakpoints.down('md')]: {
+                width: '300px',
+            },
+        },
+        spinner: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column'
+        },
+        spinImg: {
+            width: '100px',
+            height: '100px'
         }
 
         // mobileContainer: {
@@ -91,6 +110,22 @@ const theme = createMuiTheme({
         type: 'dark'
     }
 });
+
+// rotation of the bottle
+const rotateVariant = {
+    hidden: {rotate: 0},
+    visible: {
+        rotate: 360*10,
+        transition: {
+            type: "spring",
+            stiffness: 9,
+        }
+    }
+}
+
+// for removing animation after first render
+let animateCount = 0;
+
 
 // stores performer name in task_giver session
 let performer_identity = "";
@@ -125,6 +160,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const [performingTask, setPerformingTask] = useState(false);
     // while assigning score
     const [assigningScore, setAssigningScore] = useState(false);
+    // for handle game rules modal
+    const [modalOpen, setModalOpen] = useState(true);
 
     // to be run after spinning is completed
     const cleanUp = async ()=>{
@@ -139,6 +176,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
         setPerformingTask(false);
         performer_identity = "";
         setAssigningScore(false);
+        animateCount = 0;
 
         await spinOverApi.request({roomId: room.sid});
 
@@ -235,7 +273,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
         setOpenNotif(true);
     }
     // handle spin event for rest
-    const handleRemoteSpin = (msg, params)=>{
+    const handleRemoteSpin = async (msg, params)=>{
         handleOpenNotif(`${params} ${msg}`, "success");
         setSpinning(true);
         setBarMsg("Spinning...");
@@ -270,7 +308,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
             }
 
             // wait for some time before displaying result(3 seconds delay)
-            setTimeout(()=>sendMessage(`Bottle 🍾 is pointing towards ${result.data.participant}.Waiting for ${result.data.participant} to choose`, "performer_found", result.data.participant),  3000)
+            setTimeout(()=>sendMessage(`Bottle 🍾 is pointing towards ${result.data.participant}.Waiting for ${result.data.participant} to choose`, "performer_found", result.data.participant),  2000)
             // sendMessage(`Bottle is pointing towards ${result.participant}. Waiting for ${result.participant} to choose`, "performer_found")
         }
 
@@ -448,8 +486,32 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const handleCopyToClipboard = ()=>{
 
         navigator.clipboard.writeText(roomName)
-        handleOpenNotif("Copied to ClipBoard", "success");
+        handleOpenNotif("Copied to Clipboard", "success");
     }
+
+    const handleModalOpen = ()=>{
+        setModalOpen(true);
+    }
+
+    const handleModalClose = ()=>{
+        setModalOpen(false);
+    }
+
+    const SpinningBottle = ()=>{
+
+        animateCount = animateCount + 1;
+
+        return (
+            <motion.div
+            variants={rotateVariant}
+            initial='hidden'
+            animate={animateCount===1?rotateVariant.visible:''}
+            >
+                <Avatar src="./spinner.png" className={classes.spinImg}/>
+            </motion.div>
+        
+        );
+    };
 
     const RenderSpinning = ()=>{
 
@@ -549,20 +611,27 @@ function Home({roomName, room, handleLogout, initial_score}) {
             else 
 
                 return (
-                    <Typography 
-                    variant="h6" 
-                    align="center" 
-                    color="secondary">
+                    <div className={classes.spinner}>
+                        <Typography 
+                        variant="h6" 
+                        align="center" 
+                        color="secondary">
                         {barMsg}
+                        </Typography>
                         <br/>
-                        <CircularProgress color="secondary"/>
-                    </Typography>
+                        <SpinningBottle />
+                    </div>
+
                 );
     }
 
     return (
         
         <div className={classes.root}>
+
+        {/* Game rules */}
+        <RuleModal modalOpen={modalOpen} handleModalClose={handleModalClose}/>
+
         {/* dark theme */}
         <ThemeProvider theme={theme}>
             {/* Snack Bar */}
@@ -570,7 +639,9 @@ function Home({roomName, room, handleLogout, initial_score}) {
             anchorOrigin={{vertical: 'top', horizontal: 'center'}} 
             open={openNotif} 
             autoHideDuration={120000} 
-            onClose={handleNotifClose}>
+            onClose={handleNotifClose}
+            className={classes.snackNotif}
+            >
 
                 <Alert onClose={handleNotifClose} severity={notifType}>
                     {notifMsg}
@@ -820,10 +891,18 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             variant="outlined" 
                             color="secondary"
                             size="large"
-                            style={{marginTop: '20px'}}
+                            style={{marginTop: '20px', marginBottom: '20px'}}
                             endIcon={<CancelOutlinedIcon />}
                             >   
                             Cancel
+                            </Button>
+                            <Button
+                                onClick={handleModalOpen}
+                                variant="outlined" 
+                                color="secondary"
+                                size="large"
+                                >   
+                                How To Play?
                             </Button>
                         </>
                         :
@@ -839,6 +918,18 @@ function Home({roomName, room, handleLogout, initial_score}) {
                                 endIcon={<ThreeSixtyIcon />}
                                 >   
                                 SPIN
+                                </Button>
+                            </Grid>
+
+                            <Grid item >
+                                <Button
+                                onClick={handleModalOpen}
+                                variant="outlined" 
+                                color="secondary"
+                                size="large"
+                                style={{marginBottom: '20px', marginTop: '20px'}}
+                                >   
+                                How To Play?
                                 </Button>
                             </Grid>
 

@@ -34,7 +34,7 @@ const theme = createMuiTheme({
 })
 
 function InputField({label, handleSubmit, buttonLabel, 
-    onNameChange, onRoomChange ,error, loading, isJoin}) {
+    onNameChange, onRoomChange ,error, loading, isJoin, name, room}) {
 
     const classes = useStyles();
 
@@ -52,6 +52,7 @@ function InputField({label, handleSubmit, buttonLabel,
                 required 
                 label="User Name"
                 error={error?true:false}
+                value={name}
                 />
             
 
@@ -66,6 +67,7 @@ function InputField({label, handleSubmit, buttonLabel,
                 required 
                 label={label}
                 error={error?true:false}
+                value={room}
                 />
                 </>
                 }
