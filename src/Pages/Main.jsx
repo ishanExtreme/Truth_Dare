@@ -103,7 +103,7 @@ function Main(props) {
         {
             const body = {identity: userName, room: roomName};
             const result = await getTokenApi.request(body);
-
+            
             if(!result.ok){
 
                 if(result.data) setError(result.data.error);

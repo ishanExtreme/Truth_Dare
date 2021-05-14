@@ -65,7 +65,7 @@ function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerforme
 
         Trackarray.forEach(track=>{
             
-            if(type == 'video')
+            if(type === 'video')
             {
                 track.on('disabled', ()=> {
                     setVideoOn(false);

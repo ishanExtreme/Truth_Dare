@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import Button from '@material-ui/core/Button';
 import Modal from '@material-ui/core/Modal';
@@ -9,16 +9,6 @@ import Slide from '@material-ui/core/Slide';
 
 import {createMuiTheme, makeStyles, ThemeProvider} from '@material-ui/core';
 
-function getModalStyle() {
-    const top = 50;
-    const left = 50;
-  
-    return {
-      top: `${top}%`,
-      left: `${left}%`,
-      transform: `translate(-${top}%, -${left}%)`
-    };
-  }
 
 const useStyles = makeStyles((theme)=> {
     return {

@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles, createMuiTheme, ThemeProvider, withWidth } from '@material-ui/core';
-import {motion, useAnimation} from 'framer-motion';
+import {motion} from 'framer-motion';
 import Grid from '@material-ui/core/Grid';
 import Hidden from '@material-ui/core/Hidden';
 import Paper from '@material-ui/core/Paper';
