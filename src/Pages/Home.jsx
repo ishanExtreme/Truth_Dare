@@ -348,11 +348,11 @@ function Home({roomName, room, handleLogout, initial_score}) {
             setBarMsg(msg);
     }
 
-    const handleTaskerFound = (msg, tasker, performer)=>{
+    const handleTaskerFound = (msg, tasker, performer, task)=>{
 
         if(tasker === room.localParticipant.identity)
         {
-            handleOpenNotif(`You are choosen to assign task to ${performer}`, "info")
+            handleOpenNotif(`You are choosen to assign ${task.toUpperCase()} to ${performer}`, "info")
             setTaskGiver(true);
 
             performer_identity = performer;
@@ -473,7 +473,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
             }
 
             
-            sendMessage(`${result.data.participant} will assign and judge the task performed by ${room.localParticipant.identity}. Waiting for task to complete`, "tasker_found", `${result.data.participant},${room.localParticipant.identity}`);
+            sendMessage(`${result.data.participant} will assign and judge the task performed by ${room.localParticipant.identity}. Waiting for task to complete`, "tasker_found", `${result.data.participant},${room.localParticipant.identity},${taskValue}`);
 
         }
         else

@@ -122,7 +122,7 @@ function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerforme
             break;
             case 'perform_cancel': handleRemoteCancelEvent(msg, params[0]);
             break;
-            case 'tasker_found': handleTaskerFound(msg, params[0], params[1]);
+            case 'tasker_found': handleTaskerFound(msg, params[0], params[1], params[2]);
             break;
             case 'error': handleRemoteError(msg);
             break;
