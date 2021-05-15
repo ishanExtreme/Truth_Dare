@@ -22,14 +22,29 @@ const useStyles = makeStyles((theme)=>{
             },
             backgroundColor: 'black'
         },
-        root: {
+        rootLeft: {
             display: "flex",
             flexDirection: 'column',
             maxWidth: '550px',
             maxHeight: '450px',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#424242'
+            backgroundColor: '#424242',
+            [theme.breakpoints.between('lg', 'xl')]: {
+                marginRight: theme.spacing(5)
+            },
+        },
+        rootRight: {
+            display: "flex",
+            flexDirection: 'column',
+            maxWidth: '550px',
+            maxHeight: '450px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#424242',
+            [theme.breakpoints.between('lg', 'xl')]: {
+                marginLeft: theme.spacing(5)
+            },
         },
         screenIcon: {
             display: 'flex',
@@ -46,7 +61,7 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerformerFound, handleRemoteCancelEvent, handleTaskerFound, handleRemoteError, handleSpinOverEvent}) {
+function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerformerFound, handleRemoteCancelEvent, handleTaskerFound, handleRemoteError, handleSpinOverEvent, side}) {
 
     const classes = useStyles();
 
@@ -260,7 +275,7 @@ function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerforme
     };
 
     return (
-        <Card className={classes.root}>
+        <Card className={side==="left"?classes.rootLeft: classes.rootRight}>
 
             {/* full screen icon */}
             <div className={classes.screenIcon}>

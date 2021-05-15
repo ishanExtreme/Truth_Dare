@@ -729,6 +729,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
                             handleSpinOverEvent={handleSpinOverEvent}
+                            side="left"
                             />
                         </Grid>
 
@@ -742,9 +743,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteCancelEvent={handleRemoteCancelEvent}
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
-                            handleSpinOverEvent={handleSpinOverEvent}/>
+                            handleSpinOverEvent={handleSpinOverEvent}
+                            side="right"/>
                             :
-                            <VideoPlayerDisplay />
+                            <VideoPlayerDisplay side="right"/>
                             }
                         </Grid>
                     </Grid>
@@ -768,9 +770,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteCancelEvent={handleRemoteCancelEvent}
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
-                            handleSpinOverEvent={handleSpinOverEvent}/>
+                            handleSpinOverEvent={handleSpinOverEvent}
+                            side="left"/>
                             :
-                            <VideoPlayerDisplay />
+                            <VideoPlayerDisplay side="left"/>
                             }
                         </Grid>
 
@@ -784,9 +787,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteCancelEvent={handleRemoteCancelEvent}
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
-                            handleSpinOverEvent={handleSpinOverEvent}/>
+                            handleSpinOverEvent={handleSpinOverEvent}
+                            side="right"/>
                             :
-                            <VideoPlayerDisplay />
+                            <VideoPlayerDisplay side="right"/>
                             }
                         </Grid>
                     </Grid>

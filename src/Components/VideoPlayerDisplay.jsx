@@ -12,29 +12,45 @@ const useStyles = makeStyles((theme)=>{
     return {
         img: {
             width: '350px',
-            height: '300px',
+            height: '450px',
             [theme.breakpoints.down('xs')]: {
-                width: '300px',
+                width: '330px',
+                height: '300px'
             },
         },
         imgContainer: {
             display: "flex",
             width: '550px',
             [theme.breakpoints.down('xs')]: {
-                width: '300px',
+                width: '330px',
             },
             backgroundColor: '#424242',
             justifyContent: 'center',
             alignItems: 'center',
         },
-        root: {
+        rootLeft: {
             display: "flex",
             flexDirection: 'column',
             maxWidth: '550px',
             maxHeight: '450px',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#424242'
+            backgroundColor: '#424242',
+            [theme.breakpoints.between('lg', 'xl')]: {
+                marginRight: theme.spacing(5)
+            },
+        },
+        rootRight: {
+            display: "flex",
+            flexDirection: 'column',
+            maxWidth: '550px',
+            maxHeight: '450px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#424242',
+            [theme.breakpoints.between('lg', 'xl')]: {
+                marginLeft: theme.spacing(5)
+            },
         },
         screenIcon: {
             display: 'flex',
@@ -51,12 +67,12 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-function VideoPlayerDisplay(props) {
+function VideoPlayerDisplay({side}) {
 
     const classes = useStyles();
 
     return (
-        <Card className={classes.root}>
+        <Card className={side==="left"?classes.rootLeft: classes.rootRight}>
 
             {/* full screen icon */}
             <div className={classes.screenIcon}>

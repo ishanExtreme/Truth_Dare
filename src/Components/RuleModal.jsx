@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme)=> {
             marginTop: theme.spacing(75),
         },
         [theme.breakpoints.between('sm', 'lg')]: {
-            width: '500px',
+            width: '900px',
         },
         border: 'solid 2px #ffab00',
         boxShadow: theme.shadows[5],
