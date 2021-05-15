@@ -74,16 +74,22 @@ const useStyles = makeStyles((theme)=>{
             // paddingLeft: theme.spacing(1)
         },
         performSubmitButton: {
-            margin: theme.spacing(1, 1, 0, 0),
+            margin: theme.spacing(1, 5, 0, 0),
         },
         progress: {
             marginTop: theme.spacing(3),
             marginLeft: theme.spacing(5)
         },
+        progressTasker: {
+            marginLeft: theme.spacing(1)
+        },
+        radioOption: {
+            marginLeft: theme.spacing(5)
+        },
         snackNotif: {
             maxWidth: '600px',
             [theme.breakpoints.down('md')]: {
-                width: '300px',
+                width: '350px',
             },
         },
         spinner: {
@@ -122,9 +128,6 @@ const rotateVariant = {
         }
     }
 }
-
-// for removing animation after first render
-let animateCount = 0;
 
 
 // stores performer name in task_giver session
@@ -176,7 +179,6 @@ function Home({roomName, room, handleLogout, initial_score}) {
         setPerformingTask(false);
         performer_identity = "";
         setAssigningScore(false);
-        animateCount = 0;
 
         await spinOverApi.request({roomId: room.sid});
 
@@ -499,13 +501,12 @@ function Home({roomName, room, handleLogout, initial_score}) {
 
     const SpinningBottle = ()=>{
 
-        animateCount = animateCount + 1;
-
+        
         return (
             <motion.div
             variants={rotateVariant}
             initial='hidden'
-            animate={animateCount===1?rotateVariant.visible:''}
+            animate={barMsg==='Spinning...'?rotateVariant.visible:''}
             >
                 <Avatar src="./spinner.png" className={classes.spinImg}/>
             </motion.div>
@@ -519,7 +520,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
 
             return (
                 <form onSubmit={handleTaskSubmit}>
-                    <FormControl component="fieldset" error={performerError}>
+                    <FormControl component="fieldset" error={performerError} className={classes.radioOption}>
                         <FormLabel component="legend">Choose Your Task Type</FormLabel>
                         <RadioGroup aria-label="choose_task" name="choose_task" value={taskValue} onChange={handleRadioChange}>
                             <FormControlLabel value="truth" control={<Radio />} label="Truth 😐"/>
@@ -546,7 +547,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
                 <>
                 {
                     assigningScore?
-                    <CircularProgress color="prmary" className={classes.progress}/>
+                    <CircularProgress color="prmary" className={classes.progressTasker}/>
                     :
                     <>
                     <Hidden xsDown>
