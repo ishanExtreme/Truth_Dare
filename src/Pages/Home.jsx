@@ -524,8 +524,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                         <FormLabel component="legend">Choose Your Task Type</FormLabel>
                         <RadioGroup aria-label="choose_task" name="choose_task" value={taskValue} onChange={handleRadioChange}>
                             <FormControlLabel value="truth" control={<Radio />} label="Truth 😐"/>
-                            <FormControlLabel value="dare" control={<Radio />} label="Stare 😳"/>
-                            <FormControlLabel value="stare" control={<Radio />} label="Dare 😲"/>
+                            <FormControlLabel value="stare" control={<Radio />} label="Stare 😳"/>
+                            <FormControlLabel value="dare" control={<Radio />} label="Dare 😲"/>
                         </RadioGroup>
                         <FormHelperText>{helperText}</FormHelperText>
                         {
