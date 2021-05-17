@@ -17,6 +17,8 @@ function Main(props) {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [room, setRoom] = useState(null);
+    const [playersNumber, setPlayersNumber] = useState("two");
+
     const getTokenApi = useApi(videoApi.video);
     const createRoomApi = useApi(roomApi.room);
     const joinRoomApi = useApi(roomApi.join);
@@ -66,6 +68,11 @@ function Main(props) {
         };
         }
     }, [room, handleLogout]);
+
+    const handleRadioChange = (event)=>{
+        setPlayersNumber(event.target.value);
+        setError(false);
+    };
 
     const validateJoin = ()=>{
 
@@ -156,6 +163,7 @@ function Main(props) {
         setError('');
         const error = validateCreate();
 
+
         if(error) 
         {
             setError(error);
@@ -164,7 +172,13 @@ function Main(props) {
         else
         {
             const uniqueRoomName = uuidv4().split("-")[0];
-            const create_room_body = {identity: userName, room: uniqueRoomName};
+
+            let roomSize;
+            if(playersNumber === "two") roomSize = 2;
+            if(playersNumber === "three") roomSize = 3;
+            if(playersNumber === "four") roomSize = 4;
+
+            const create_room_body = {identity: userName, room: uniqueRoomName, roomSize: roomSize};
             const room_result = await createRoomApi.request(create_room_body);
 
             if(!room_result.ok)
@@ -210,7 +224,7 @@ function Main(props) {
             setLoading(false);
         }
 
-    }, [userName, roomName])
+    }, [userName, roomName, playersNumber])
 
 
     let render;
@@ -235,6 +249,8 @@ function Main(props) {
             resetError={resetError}
             name={userName}
             room={roomName}
+            playersNumber={playersNumber}
+            handleRadioChange={handleRadioChange}
             />
         );
     }

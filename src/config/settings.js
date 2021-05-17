@@ -2,10 +2,10 @@ require('dotenv').config();
 
 const setting = {
     dev: {
-        apiUrl: 'https://truth-dare-api.herokuapp.com/api'
+        apiUrl: 'http://localhost:3001/api'
     },
     prod: {
-        apiUrl: 'https://truth-dare-api.herokuapp.com/api'
+        apiUrl: 'http://localhost:3001/api'
     },
 }
 

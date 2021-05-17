@@ -3,7 +3,7 @@ import CreateRoom from './CreateRoom';
 import JoinRoom from './JoinRoom';
 import Option from './Option';
 
-function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreateRoom, error, loading, resetError, name, room}) {
+function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreateRoom, error, loading, resetError, name, room, playersNumber, handleRadioChange}) {
 
     // switch between component "create", "join" and "option"
     const [component, setComponent] = useState('option');
@@ -35,6 +35,8 @@ function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreate
             error={error}
             loading={loading}
             name={name}
+            playersNumber={playersNumber}
+            handleRadioChange={handleRadioChange}
             />
         );
     }

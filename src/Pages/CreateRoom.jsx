@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme)=> {
 })
 
 // handleClick = back button
-function CreateRoom({handleClick, handleNameChange, handleCreateRoom, error, loading, name}) {
+function CreateRoom({handleClick, handleNameChange, handleCreateRoom, error, loading, name, playersNumber, handleRadioChange}) {
 
     const classes = useStyles();
 
@@ -59,6 +59,8 @@ function CreateRoom({handleClick, handleNameChange, handleCreateRoom, error, loa
                 loading={loading}
                 isJoin={false}
                 name={name}
+                playersNumber={playersNumber}
+                handleRadioChange={handleRadioChange}
                 />
             </InputContainer>
 
