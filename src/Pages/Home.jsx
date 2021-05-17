@@ -183,6 +183,25 @@ function Home({roomName, room, handleLogout, initial_score}) {
         await spinOverApi.request({roomId: room.sid});
 
     }
+
+    const handleTimeoutRemove = ()=>{
+
+        // logout if single participant is present in the room
+        // send notif after 3 minutes
+        // disconnect after another 2 minutes
+        if(room.participants.size === 0)
+        {
+            setTimeout(()=>{
+                handleOpenNotif('Invite some players or the room will be "DISCONNECTED" in another 2 minutes...', "error")
+                setTimeout(()=>{
+                    if(room.participants.size === 0) handleLogout();
+                        
+                }, 120000)
+            }, 180000)
+        }
+
+    }
+
     useEffect(()=> {
         
         // when a participant connects
@@ -201,6 +220,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
             
             // notify when participant leaves
             handleOpenNotif(`${participant.identity} left`, "warning");
+            // when participant disconnect
+            handleTimeoutRemove();
         };
 
         
@@ -211,6 +232,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
         // initial mounting store all current users  
         room.participants.forEach(participantConnected);
 
+        // for the first when joined
+        handleTimeoutRemove();
 
         return ()=> {
             // ------- Not Known --------
