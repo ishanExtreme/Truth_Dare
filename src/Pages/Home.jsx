@@ -27,11 +27,11 @@ import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import './home.css';
 import VideoPlayer from '../Components/VideoPlayer';
 import VideoPlayerDisplay from '../Components/VideoPlayerDisplay';
+import RuleModal from '../Components/RuleModal';
 
 import useApi from '../hooks/useApi';
 import gameApi from '../api/game';
-import RuleModal from '../Components/RuleModal';
-
+import colors from '../config/colors';
 
 // for snackbar
 function Alert(props) {
@@ -43,11 +43,11 @@ const useStyles = makeStyles((theme)=>{
         root: {
             flexGrow: 1,
             padding: theme.spacing(3),
-            backgroundColor: '#212121',
+            background: colors.background,
             height: '100%'
         },
         container: {
-            backgroundColor: '#212121',
+            background: colors.background,
             height: '100%'
         },
         contentBox: {

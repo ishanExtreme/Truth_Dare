@@ -15,7 +15,7 @@ function ThemeButton({color, text, style, onClick}) {
     return (
         <ThemeProvider theme={theme}>
             <Button
-                variant="contained"
+                variant="outlined"
                 color={color}
                 size="large"
                 className={style}

@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import Footer from '../Components/Footer';
+import Header from '../Components/Header';
 import CreateRoom from './CreateRoom';
 import JoinRoom from './JoinRoom';
 import Option from './Option';
@@ -15,19 +17,33 @@ function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreate
 
     
     let render;
+
+
     if(component === 'option')
     {
-        render = (
+        render =  (
+            <>
+            {/* Header */}
+            <Header />
+
             <Option 
             handleClick={handleClick} 
             handleNameChange={handleNameChange}
             handleRoomChange={handleRoomChange}
             />
+
+            {/* Footer */}
+            {/* <Footer /> */}
+            </>
         );
     }
     else if(component === 'create')
     {
-        render = (
+        render =  (
+            <>
+            {/* Header */}
+            <Header />
+
             <CreateRoom 
             handleClick={handleClick}
             handleNameChange={handleNameChange}
@@ -38,12 +54,20 @@ function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreate
             playersNumber={playersNumber}
             handleRadioChange={handleRadioChange}
             />
+
+            {/* Footer */}
+            {/* <Footer /> */}
+            </>
         );
     }
 
     else
     {
-        render = (
+        render =  (
+            <>
+            {/* Header */}
+            <Header />
+
             <JoinRoom 
             handleClick={handleClick}
             handleNameChange={handleNameChange}
@@ -54,8 +78,14 @@ function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreate
             name={name}
             room={room}
             />
+
+            {/* Footer */}
+            {/* <Footer/> */}
+            </>
         );
     }
+    
+    
 
     return render;
 }

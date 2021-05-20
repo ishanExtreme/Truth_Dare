@@ -48,7 +48,7 @@ function InputField({label, handleSubmit, buttonLabel,
     const classes = useStyles();
     
     return (
-        <ThemeProvider theme={theme}>
+        // <ThemeProvider theme={theme}>
             <form 
             noValidate autoComplete="off" 
             onSubmit={handleSubmit}
@@ -120,7 +120,7 @@ function InputField({label, handleSubmit, buttonLabel,
                 }
                 
             </form>
-        </ThemeProvider>
+        // </ThemeProvider>
     );
 }
 

@@ -9,6 +9,7 @@ import Slide from '@material-ui/core/Slide';
 
 import {createMuiTheme, makeStyles, ThemeProvider} from '@material-ui/core';
 
+import colors from '../config/colors';
 
 const useStyles = makeStyles((theme)=> {
     return {
@@ -44,8 +45,8 @@ const theme = createMuiTheme({
     palette: {
         type: 'dark',
         background: {
-            paper: "#212121",
-            default: "#212121"
+            paper: colors.background,
+            default: colors.background
         }
     }
 });

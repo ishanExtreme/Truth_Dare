@@ -41,7 +41,7 @@ const divVariant = {
     }
 }
 
-function InputContainer({children, handleClick}) {
+function InputContainer({children, handleClick, style}) {
 
     const classes = useStyles();
 
@@ -50,6 +50,7 @@ function InputContainer({children, handleClick}) {
         variants={divVariant}
         initial='initial'
         animate='animate'
+        style={style}
         >
             <Paper className={classes.inputContainer}>
                 
