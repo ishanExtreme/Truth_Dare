@@ -28,6 +28,7 @@ import ExitToAppOutlinedIcon from '@material-ui/icons/ExitToAppOutlined';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import ExpandLessOutlinedIcon from '@material-ui/icons/ExpandLessOutlined';
 import ExpandMoreOutlinedIcon from '@material-ui/icons/ExpandMoreOutlined';
+import GamepadOutlinedIcon from '@material-ui/icons/GamepadOutlined';
 
 import './home.css';
 import VideoPlayer from '../Components/VideoPlayer';
@@ -163,6 +164,9 @@ const buttonBarVariant = {
 // stores performer name in task_giver session
 let performer_identity = "";
 
+// stores score of participants
+let participantScoresValue = [];
+
 function Home({roomName, room, handleLogout, initial_score}) {
 
     // participants list
@@ -199,6 +203,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const [expand, setExpand] = useState(true);
     // navValue
     const [navValue, setNavValue] = useState("game");
+    // players score value
+    const [showScore, setShowScore] = useState(false);
+    // score view loading
+    const [scoreLoading, setScoreLoading] = useState(false);
 
     // to be run after spinning is completed
     const cleanUp = async ()=>{
@@ -284,6 +292,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const getTaskerApi = useApi(gameApi.task_giver);
     const scoreUpdateApi = useApi(gameApi.score_update);
     const spinOverApi = useApi(gameApi.spin_over);
+    const getScoresApi = useApi(gameApi.get_scores);
 
     // format of instruction codes are=>
     // #code%params*msg
@@ -540,17 +549,18 @@ function Home({roomName, room, handleLogout, initial_score}) {
         }
 
 
-    }
+    };
+
 
     const handleCopyToClipboard = ()=>{
 
         navigator.clipboard.writeText(roomName)
         handleOpenNotif("Copied to Clipboard", "success");
-    }
+    };
 
     const handleModalOpen = ()=>{
         setModalOpen(true);
-    }
+    };
 
     const handleModalClose = ()=>{
         setModalOpen(false);
@@ -687,15 +697,114 @@ function Home({roomName, room, handleLogout, initial_score}) {
                 );
     }
 
-    const RenderButtonBar = ()=>{
-        
-        if(navValue === "game")
+
+    const handleScoreGetClick = async ()=>
+    {
+
+        setScoreLoading(true);
+        if(participants.length !== 0)
+        {
+            const participantsBody = participants.map((participant)=>participant.identity);
+
+            const result = await getScoresApi.request({
+                participants: participantsBody,
+                roomId: room.sid
+            });
+
+            if(!result.ok)
+            {
+                if(result.data) {
+                    // set error notif
+                    handleOpenNotif(result.data.error, 'error');
+                }
+                else {
+                    handleOpenNotif("An unexpected error occurred.", 'error');
+                }
+                setScoreLoading(false);
+                return;
+            }
+
+            participantScoresValue = result.data.scores;
+            
+        }
+        // loading stops
+        setScoreLoading(false);
+        // score view visible
+        setShowScore(true);
+
+    }
+
+    const RenderScoreView = ()=>{
+
+        if(participants.length !== 0)
+        {
+            
             return (
                 <>
-                {spinning?
-                    // While spinning
-                    <>
+                    {/* show score */}
+                    {participants.map((participant)=>{
+                        return (
+                        <Typography 
+                        color="primary" 
+                        variant="h6"
+                        style={{marginBottom: '10px'}}
+                        >
+                            {participant.identity}:{participantScoresValue[participant.identity]}
+                            {/* ?participantScoresValue[participant.identity]:"Not Found"} */}
+                        </Typography>
+                        );
+                    })}
 
+                    {/* back button */}
+                    <Button
+                    onClick={()=>setShowScore(false)}
+                    variant="outlined" 
+                    color="secondary"
+                    size="large"
+                    style={{marginBottom: '20px', marginTop: '20px'}}
+                    >  
+                    BACK
+                    </Button>
+                </>
+            );
+        }
+        else
+        {
+            return (
+                <>       
+                <Typography 
+                color="primary" 
+                variant="h6"
+                style={{marginBottom: '10px'}}
+                >
+                    Invite Someone To Play :(
+                </Typography>
+                    
+
+                {/* back button */}
+                <Button
+                onClick={()=>setShowScore(false)}
+                variant="outlined" 
+                color="secondary"
+                size="large"
+                style={{marginBottom: '20px', marginTop: '20px'}}
+                >  
+                BACK
+                </Button>
+                </>
+            );
+        }
+    }
+    // renders game window of bottom navigation
+    const RenderGameWindow = ()=>{
+
+        // While spinning
+        if(spinning)
+            return (
+                <>
+                    {!showScore?
+                    // main game window
+                    <>
                         <RenderSpinning />
                         <Button
                         onClick={handleCancelEvent}
@@ -707,58 +816,91 @@ function Home({roomName, room, handleLogout, initial_score}) {
                         >   
                         Cancel
                         </Button>
+
+                        {
+                        !scoreLoading?
                         <Button
-                            onClick={handleModalOpen}
-                            variant="outlined" 
-                            color="secondary"
-                            size="large"
-                            >   
-                            How To Play?
+                        onClick={handleScoreGetClick}
+                        variant="outlined" 
+                        color="secondary"
+                        size="large"
+                        endIcon={<GamepadOutlinedIcon />}
+                        >   
+                        Scores
                         </Button>
+                        :
+                        <CircularProgress color="prmary" className={classes.progressTasker}/>
+                        }
+                    </>
+                    // score window
+                    :
+                    <RenderScoreView />
+                    }
+                </>
+            );
+        else
+            return (
+
+                <>
+                    {!showScore?
+                    // main window
+                    <>
+                    <Grid item >
+                        <Button
+                        onClick={()=>sendMessage("spun the bottle", "spin", room.localParticipant.identity)}
+                        variant="outlined" 
+                        color="secondary"
+                        size="large"
+                        style={{marginBottom: '20px'}}
+                        endIcon={<ThreeSixtyIcon />}
+                        >   
+                        SPIN
+                        </Button>
+                    </Grid>
+
+                    <Grid item >
+                        {
+                        !scoreLoading?
+                        <Button
+                        onClick={handleScoreGetClick}
+                        variant="outlined" 
+                        color="secondary"
+                        size="large"
+                        endIcon={<GamepadOutlinedIcon />}
+                        >   
+                        Scores
+                        </Button>
+                        :
+                        <CircularProgress color="prmary" className={classes.progressTasker}/>
+                        }
+                    </Grid>
+
+                    <Grid item>
+                        <Button
+                        onClick={handleLogout}
+                        variant="outlined" 
+                        color="secondary"
+                        size="large"
+                        style={{marginTop: '20px '}}
+                        endIcon={< ExitToAppOutlinedIcon/>}
+                        >   
+                        Leave Room
+                        </Button>
+                    </Grid>
                     </>
                     :
-                    // Main Buttons
-                    <>
-                        <Grid item >
-                            <Button
-                            onClick={()=>sendMessage("spun the bottle", "spin", room.localParticipant.identity)}
-                            variant="outlined" 
-                            color="secondary"
-                            size="large"
-                            style={{marginBottom: '20px'}}
-                            endIcon={<ThreeSixtyIcon />}
-                            >   
-                            SPIN
-                            </Button>
-                        </Grid>
-
-                        <Grid item >
-                            <Button
-                            onClick={handleModalOpen}
-                            variant="outlined" 
-                            color="secondary"
-                            size="large"
-                            style={{marginBottom: '20px', marginTop: '20px'}}
-                            >   
-                            How To Play?
-                            </Button>
-                        </Grid>
-
-                        <Grid item>
-                            <Button
-                            onClick={handleLogout}
-                            variant="outlined" 
-                            color="secondary"
-                            size="large"
-                            style={{marginTop: '20px '}}
-                            endIcon={< ExitToAppOutlinedIcon/>}
-                            >   
-                            Leave Room
-                            </Button>
-                        </Grid>
-                    </>
-                }
+                    // score window
+                    <RenderScoreView />
+                    }
                 </>
+            );
+    }
+
+    const RenderButtonBar = ()=>{
+        
+        if(navValue === "game")
+            return (
+                <RenderGameWindow />
             );
         else
             return (
