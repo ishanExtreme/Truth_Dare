@@ -11,6 +11,7 @@ import MicOffIcon from '@material-ui/icons/MicOff';
 import FullscreenIcon from '@material-ui/icons/Fullscreen';
 
 import { makeStyles } from '@material-ui/core';
+import colors from '../config/colors';
 
 const useStyles = makeStyles((theme)=>{
 
@@ -21,7 +22,7 @@ const useStyles = makeStyles((theme)=>{
             [theme.breakpoints.down('xs')]: {
                 width: '300px',
             },
-            backgroundColor: 'black'
+            backgroundColor: colors.videoPlayer
         },
         rootLeft: {
             display: "flex",
@@ -30,7 +31,9 @@ const useStyles = makeStyles((theme)=>{
             maxHeight: '450px',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#424242',
+            // backgroundColor: colors.videoPlayerColor,
+            // backgroundImage: colors.videoPlayerImage,
+            background: colors.videoPlayerBackground,
             [theme.breakpoints.between('lg', 'xl')]: {
                 marginRight: theme.spacing(5)
             },
@@ -42,7 +45,9 @@ const useStyles = makeStyles((theme)=>{
             maxHeight: '450px',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#424242',
+            // backgroundColor: colors.videoPlayerColor,
+            // backgroundImage: colors.videoPlayerImage,
+            background: colors.videoPlayerBackground,
             [theme.breakpoints.between('lg', 'xl')]: {
                 marginLeft: theme.spacing(5)
             },
@@ -54,7 +59,7 @@ const useStyles = makeStyles((theme)=>{
             width: '100%'
         },
         userName: {
-            color: 'white',
+            color: 'black',
             width: '100%',
             textAlign: 'center',
             marginLeft: '80px'
@@ -289,7 +294,7 @@ function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerforme
                 // onClick={()=>sendMessage("Working!!!!")}
                 >
                     <FullscreenIcon
-                    style={{color: 'white'}}
+                    style={{color: 'black'}}
                     fontSize="large" 
                     />
                 </IconButton>
@@ -305,6 +310,7 @@ function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerforme
                autoPlay 
                ref={videoRef}
                className={classes.video}
+               style={{transform: 'scale(-1,1)'}}
                />
 
                {/* Audio */}

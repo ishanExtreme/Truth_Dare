@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme)=> {
             height: "200px",
             width: "200px",
         },
-        backgroundColor: "#ffea00"
+        backgroundColor: colors.text
     },
     bottle: {
         height: "150px",

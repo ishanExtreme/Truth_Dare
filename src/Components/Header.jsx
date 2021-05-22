@@ -10,13 +10,13 @@ import LocalCafeIcon from '@material-ui/icons/LocalCafe';
 
 import {makeStyles} from '@material-ui/core';
 import {motion} from 'framer-motion';
+import colors from '../config/colors';
 
 const useStyles = makeStyles((theme)=> {
     return {
 
     appBar: {
         marginTop: theme.spacing(5),
-        // borderBlockEnd: `solid 2px #ffea00`
     },
 
     avatar: {
@@ -28,13 +28,10 @@ const useStyles = makeStyles((theme)=> {
        
         fontSize: '35px',
         fontFamily: "'Pacifico', cursive",
-        color: "#ffea00"
+        color: colors.text
     },
 
     titleContainer: {
-        [theme.breakpoints.up('sm')]: {
-            marginLeft: theme.spacing(20) 
-        },
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -124,8 +121,6 @@ function Header(props) {
         >
 
             <ToolBar>
-                {/* Logo */}
-                {/* <Avatar alt="Truth Dare" src="./headerLogo.png" className={classes.avatar}/> */}
                 
                 {/* middle text */}
                 <motion.div
@@ -195,7 +190,7 @@ function Header(props) {
                 </motion.div>
                 {/* middle text end */}
 
-                {/* Buy me a coffee button */}
+                {/* Buy me a coffee button
                 <Button
                 color="primary"
                 size="small"
@@ -203,7 +198,7 @@ function Header(props) {
                 className={classes.btn}
                 >
                     Buy Me A Coffee
-                </Button>
+                </Button> */}
                 
 
             </ToolBar>

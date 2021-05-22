@@ -7,6 +7,8 @@ import FullscreenIcon from '@material-ui/icons/Fullscreen';
 import { makeStyles } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
 
+import colors from '../config/colors';
+
 const useStyles = makeStyles((theme)=>{
 
     return {
@@ -24,7 +26,7 @@ const useStyles = makeStyles((theme)=>{
             [theme.breakpoints.down('xs')]: {
                 width: '330px',
             },
-            backgroundColor: '#424242',
+            backgroundColor: colors.videoPlayer,
             justifyContent: 'center',
             alignItems: 'center',
         },
@@ -35,7 +37,9 @@ const useStyles = makeStyles((theme)=>{
             maxHeight: '450px',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#424242',
+            // backgroundColor: colors.videoPlayerColor,
+            // backgroundImage: colors.videoPlayerImage,
+            background: colors.videoPlayerBackground,
             [theme.breakpoints.between('lg', 'xl')]: {
                 marginRight: theme.spacing(5)
             },
@@ -47,7 +51,9 @@ const useStyles = makeStyles((theme)=>{
             maxHeight: '450px',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#424242',
+            // backgroundColor: colors.videoPlayerColor,
+            // backgroundImage: colors.videoPlayerImage,
+            background: colors.videoPlayerBackground,
             [theme.breakpoints.between('lg', 'xl')]: {
                 marginLeft: theme.spacing(5)
             },

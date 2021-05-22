@@ -218,8 +218,21 @@ function Main(props) {
             }
             catch(err)
             {
-                setError(err.message);
+                let media;
+                try
+                {
+                    media = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+                }
+                catch(err)
+                {   
+                    setError("Camera or Mic permission is blocked. To renable it press the 'lock' icon in on the 'url bar'(at top) now go to permissions and allow both 'camera' and 'microphone'");
+                }
+                
+                if(media)
+                    setError(err.message);
                 setLoading(false);
+
+
             }
             setLoading(false);
         }

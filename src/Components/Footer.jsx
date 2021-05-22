@@ -1,8 +1,8 @@
 import React from 'react';
 import AppBar from '@material-ui/core/AppBar';
-import Typography from '@material-ui/core/Typography';
-import Avatar from '@material-ui/core/Avatar';
-import Link from '@material-ui/core/Link';
+// import Typography from '@material-ui/core/Typography';
+// import Avatar from '@material-ui/core/Avatar';
+// import Link from '@material-ui/core/Link';
 import Button from '@material-ui/core/Button';
 import LocalCafeIcon from '@material-ui/icons/LocalCafe';
 
@@ -53,7 +53,9 @@ function Footer(props) {
        className={classes.appBar}
        >   
        <div className={classes.footer}>
-           <Typography variant="h6"  color="secondary" display="inline">
+
+            {/* My name */}
+           {/* <Typography variant="h6"  color="secondary" display="inline">
                Made With
            </Typography>
 
@@ -71,7 +73,17 @@ function Footer(props) {
            onClick={()=>window.open("https://github.com/ishanExtreme")}
            >
                Ishan Mishra
-           </Link>
+           </Link> */}
+
+            {/* Buy me a coffee button */}
+            <Button
+            color="primary"
+            size="small"
+            endIcon={<LocalCafeIcon/>}
+            className={classes.btn}
+            >
+                Buy Me A Coffee
+            </Button>
         
        </div>
 
