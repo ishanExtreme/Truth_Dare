@@ -37,6 +37,7 @@ import RuleModal from '../Components/RuleModal';
 import useApi from '../hooks/useApi';
 import gameApi from '../api/game';
 import colors from '../config/colors';
+import CustomBottomNavBar from '../Components/CustomBottomNavBar';
 
 // for snackbar
 function Alert(props) {
@@ -75,7 +76,7 @@ const useStyles = makeStyles((theme)=>{
             bottom: 0,
             backgroundColor: "#263238",
             // paddingTop: theme.spacing(5),
-            paddingBottom: theme.spacing(5),
+            // paddingBottom: theme.spacing(5),
             paddingInline: theme.spacing(1),
             // backgroundColor: theme.palette.primary.light
             // paddingLeft: theme.spacing(1)
@@ -120,8 +121,7 @@ const useStyles = makeStyles((theme)=>{
             left: 'auto',
             position: 'fixed',
             zIndex: 1
-        }
-
+        },
         // mobileContainer: {
 
         // }
@@ -146,7 +146,18 @@ const rotateVariant = {
             stiffness: 9,
         }
     }
-}
+};
+
+// button bar animations
+const buttonBarVariant = {
+    initial: {opacity: 0},
+    animate: {
+        opacity: 1,
+        transition: {
+            duration: 0.5
+        }
+    }
+};
 
 
 // stores performer name in task_giver session
@@ -186,6 +197,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const [modalOpen, setModalOpen] = useState(true);
     // for expanding appbar
     const [expand, setExpand] = useState(true);
+    // navValue
+    const [navValue, setNavValue] = useState("game");
 
     // to be run after spinning is completed
     const cleanUp = async ()=>{
@@ -558,6 +571,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
         );
     };
 
+    const handleBottomNavChange = (event, newValue)=>{
+        setNavValue(newValue);
+    }
+
     const RenderSpinning = ()=>{
 
         if(performer)
@@ -668,6 +685,85 @@ function Home({roomName, room, handleLogout, initial_score}) {
                     </div>
 
                 );
+    }
+
+    const RenderButtonBar = ()=>{
+        
+        if(navValue === "game")
+            return (
+                <>
+                {spinning?
+                    // While spinning
+                    <>
+
+                        <RenderSpinning />
+                        <Button
+                        onClick={handleCancelEvent}
+                        variant="outlined" 
+                        color="secondary"
+                        size="large"
+                        style={{marginTop: '20px', marginBottom: '20px'}}
+                        endIcon={<CancelOutlinedIcon />}
+                        >   
+                        Cancel
+                        </Button>
+                        <Button
+                            onClick={handleModalOpen}
+                            variant="outlined" 
+                            color="secondary"
+                            size="large"
+                            >   
+                            How To Play?
+                        </Button>
+                    </>
+                    :
+                    // Main Buttons
+                    <>
+                        <Grid item >
+                            <Button
+                            onClick={()=>sendMessage("spun the bottle", "spin", room.localParticipant.identity)}
+                            variant="outlined" 
+                            color="secondary"
+                            size="large"
+                            style={{marginBottom: '20px'}}
+                            endIcon={<ThreeSixtyIcon />}
+                            >   
+                            SPIN
+                            </Button>
+                        </Grid>
+
+                        <Grid item >
+                            <Button
+                            onClick={handleModalOpen}
+                            variant="outlined" 
+                            color="secondary"
+                            size="large"
+                            style={{marginBottom: '20px', marginTop: '20px'}}
+                            >   
+                            How To Play?
+                            </Button>
+                        </Grid>
+
+                        <Grid item>
+                            <Button
+                            onClick={handleLogout}
+                            variant="outlined" 
+                            color="secondary"
+                            size="large"
+                            style={{marginTop: '20px '}}
+                            endIcon={< ExitToAppOutlinedIcon/>}
+                            >   
+                            Leave Room
+                            </Button>
+                        </Grid>
+                    </>
+                }
+                </>
+            );
+        else
+            return (
+                <div></div>
+            );
     }
 
     return (
@@ -957,73 +1053,17 @@ function Home({roomName, room, handleLogout, initial_score}) {
                                 <ExpandMoreOutlinedIcon/>
                             </IconButton>
 
-                            {spinning?
-                            // While spinning
-                            <>
+                            {/* Render Options here */}
+                            <RenderButtonBar />
 
-                                <RenderSpinning />
-                                <Button
-                                onClick={handleCancelEvent}
-                                variant="outlined" 
-                                color="secondary"
-                                size="large"
-                                style={{marginTop: '20px', marginBottom: '20px'}}
-                                endIcon={<CancelOutlinedIcon />}
-                                >   
-                                Cancel
-                                </Button>
-                                <Button
-                                    onClick={handleModalOpen}
-                                    variant="outlined" 
-                                    color="secondary"
-                                    size="large"
-                                    >   
-                                    How To Play?
-                                </Button>
-                            </>
-                            :
-                            // Main Buttons
-                            <>
-                                <Grid item >
-                                    <Button
-                                    onClick={()=>sendMessage("spun the bottle", "spin", room.localParticipant.identity)}
-                                    variant="outlined" 
-                                    color="secondary"
-                                    size="large"
-                                    style={{marginBottom: '20px'}}
-                                    endIcon={<ThreeSixtyIcon />}
-                                    >   
-                                    SPIN
-                                    </Button>
-                                </Grid>
+                            {/* Bottmon nav */}
+                            <Grid item>
+                                <CustomBottomNavBar 
+                                navValue={navValue} 
+                                handleBottomNavChange={handleBottomNavChange}/>
+                            </Grid>
+                            {/* Bottmon nav ends*/}
 
-                                <Grid item >
-                                    <Button
-                                    onClick={handleModalOpen}
-                                    variant="outlined" 
-                                    color="secondary"
-                                    size="large"
-                                    style={{marginBottom: '20px', marginTop: '20px'}}
-                                    >   
-                                    How To Play?
-                                    </Button>
-                                </Grid>
-
-                                <Grid item>
-                                    <Button
-                                    onClick={handleLogout}
-                                    variant="outlined" 
-                                    color="secondary"
-                                    size="large"
-                                    style={{marginTop: '20px '}}
-                                    endIcon={< ExitToAppOutlinedIcon/>}
-                                    >   
-                                    Leave Room
-                                    </Button>
-                                </Grid>
-                            </>
-                        }
-                        
                         </Grid>
                     </AppBar>
                     {/* Bar End */}
