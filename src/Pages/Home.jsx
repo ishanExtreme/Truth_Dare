@@ -39,6 +39,7 @@ import useApi from '../hooks/useApi';
 import gameApi from '../api/game';
 import colors from '../config/colors';
 import CustomBottomNavBar from '../Components/CustomBottomNavBar';
+import HelpView from '../Components/HelpView';
 
 // for snackbar
 function Alert(props) {
@@ -101,7 +102,7 @@ const useStyles = makeStyles((theme)=>{
         snackNotif: {
             maxWidth: '600px',
             [theme.breakpoints.down('md')]: {
-                width: '350px',
+                width: '400px',
             },
         },
         spinner: {
@@ -902,6 +903,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
             return (
                 <RenderGameWindow />
             );
+        else if(navValue === "help")
+            return (
+                <HelpView handleModalOpen={handleModalOpen}/>
+            )
         else
             return (
                 <div></div>
