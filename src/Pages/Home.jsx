@@ -233,7 +233,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
         if(room.participants.size === 0)
         {
             setTimeout(()=>{
-                handleOpenNotif('Invite some players or the room will be "DISCONNECTED" in another 2 minutes...', "error")
+                if(room.participants.size === 0)
+                    handleOpenNotif('Invite some players or the room will be "DISCONNECTED" in another 2 minutes...', "error")
                 setTimeout(()=>{
                     if(room.participants.size === 0) handleLogout();
                         
@@ -492,14 +493,13 @@ function Home({roomName, room, handleLogout, initial_score}) {
 
         handleOpenNotif(msg, "info");
 
-        // automatically set conclude to false after tirty seconds
+        // automatically set conclude to false after 15 seconds
         // to avoid infinite loading
         setTimeout(()=>{
             
             setConcluding(false);
-            handleOpenNotif("Concluding failed", "error");
             
-        }, 30000);
+        }, 15000);
     }
 
     const handleConcludeGame = async ()=>{
