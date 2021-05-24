@@ -40,6 +40,7 @@ import gameApi from '../api/game';
 import colors from '../config/colors';
 import CustomBottomNavBar from '../Components/CustomBottomNavBar';
 import HelpView from '../Components/HelpView';
+import OptionsView from '../Components/OptionsView';
 
 // for snackbar
 function Alert(props) {
@@ -208,6 +209,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const [showScore, setShowScore] = useState(false);
     // score view loading
     const [scoreLoading, setScoreLoading] = useState(false);
+    // conclude loading
+    const [concluding, setConcluding] = useState(false);
 
     // to be run after spinning is completed
     const cleanUp = async ()=>{
@@ -294,6 +297,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const scoreUpdateApi = useApi(gameApi.score_update);
     const spinOverApi = useApi(gameApi.spin_over);
     const getScoresApi = useApi(gameApi.get_scores);
+    const getWinnersApi = useApi(gameApi.get_winners);
 
     // format of instruction codes are=>
     // #code%params*msg
@@ -331,6 +335,15 @@ function Home({roomName, room, handleLogout, initial_score}) {
             case "spin_over":
                 params = params.split(",");
                 handleSpinOverEvent(msg, params[0], params[1]);
+            break;
+
+            case "conclude":
+                handleConcludeGame();
+            break;
+
+            case "winner_found":
+                params = params.split(",");
+                handleWinnerFound(msg, params);
             break;
         }
     }
@@ -464,7 +477,79 @@ function Home({roomName, room, handleLogout, initial_score}) {
             else
                 sendMessage(`${performer_identity} was not able to complete the task`, "spin_over", `${scoreValue},${performer_identity}`);
 
+    };
+
+    const handleRemoteConcludeError = (msg)=>{
+
+        setConcluding(false);
+
+        handleOpenNotif(msg, "error");
+    };
+
+    const handleRemoteConcludeGame = (msg)=>{
+        setConcluding(true);
+
+        handleOpenNotif(msg, "info");
+
+        // automatically set conclude to false after tirty seconds
+        // to avoid infinite loading
+        setTimeout(()=>{
+            
+            setConcluding(false);
+            handleOpenNotif("Concluding failed", "error");
+            
+        }, 30000);
     }
+
+    const handleConcludeGame = async ()=>{
+
+        // if no other user has pressed the conclude button
+        if(!concluding)
+        {
+            setConcluding(true);
+            const result = await getWinnersApi.request({roomId: room.sid, room:roomName});
+
+            if(!result.ok)
+            {
+                if(result.data) {
+                    // set error notif
+                    handleOpenNotif(result.data.error, 'error');
+                }
+                else {
+                    // set error notif
+                    handleOpenNotif("An unexpected error occurred.", 'error');
+                }
+                setConcluding(false);
+                // send message to others to stop their conclude loading also
+                sendMessage("Error occured while concluding the game", "conclude_error");
+                return;
+            }
+
+            // comma seperated strings
+            const stringResult = result.data.winners.toString();
+            // send winners to every one
+            sendMessage(`${stringResult} is/are the winner(s)`, "winner_found", stringResult);
+        }
+        
+    };
+
+    const handleWinnerFound = (msg, winnerList)=>{
+        
+        if(winnerList.includes(room.localParticipant.identity))
+        {
+            handleOpenNotif("Congratulations You Won The Match!!!!", "success");
+            setScore(0);
+            setConcluding(false);
+            // ------TODO: winning stickers--------------//
+        }
+        else
+        {
+            handleOpenNotif(msg, "info");
+            setScore(0);
+            setConcluding(false);
+        }
+
+    };
 
     const handleCancelEvent = ()=>{
 
@@ -907,9 +992,9 @@ function Home({roomName, room, handleLogout, initial_score}) {
             return (
                 <HelpView handleModalOpen={handleModalOpen}/>
             )
-        else
+        else if(navValue === "options")
             return (
-                <div></div>
+                <OptionsView sendMessage={sendMessage} localParticipantIdentity={room.localParticipant.identity} concluding={concluding}/>
             );
     }
 
@@ -1030,6 +1115,9 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteError={handleRemoteError}
                             handleSpinOverEvent={handleSpinOverEvent}
                             side="left"
+                            handleRemoteConcludeError={handleRemoteConcludeError}
+                            handleWinnerFound={handleWinnerFound}
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}
                             />
                         </Grid>
 
@@ -1044,7 +1132,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
                             handleSpinOverEvent={handleSpinOverEvent}
-                            side="right"/>
+                            side="right"
+                            handleRemoteConcludeError={handleRemoteConcludeError}
+                            handleWinnerFound={handleWinnerFound}
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
                             :
                             <VideoPlayerDisplay side="right"/>
                             }
@@ -1071,7 +1162,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
                             handleSpinOverEvent={handleSpinOverEvent}
-                            side="left"/>
+                            side="left"
+                            handleRemoteConcludeError={handleRemoteConcludeError}
+                            handleWinnerFound={handleWinnerFound}
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
                             :
                             <VideoPlayerDisplay side="left"/>
                             }
@@ -1088,7 +1182,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
                             handleSpinOverEvent={handleSpinOverEvent}
-                            side="right"/>
+                            side="right"
+                            handleRemoteConcludeError={handleRemoteConcludeError}
+                            handleWinnerFound={handleWinnerFound}
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
                             :
                             <VideoPlayerDisplay side="right"/>
                             }
@@ -1118,6 +1215,9 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
                             handleSpinOverEvent={handleSpinOverEvent}
+                            handleRemoteConcludeError={handleRemoteConcludeError}
+                            handleWinnerFound={handleWinnerFound}
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}
                             />
                         </Grid>
 
@@ -1131,7 +1231,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteCancelEvent={handleRemoteCancelEvent}
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
-                            handleSpinOverEvent={handleSpinOverEvent}/>
+                            handleSpinOverEvent={handleSpinOverEvent}
+                            handleRemoteConcludeError={handleRemoteConcludeError}
+                            handleWinnerFound={handleWinnerFound}
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -1147,7 +1250,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteCancelEvent={handleRemoteCancelEvent}
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
-                            handleSpinOverEvent={handleSpinOverEvent}/>
+                            handleSpinOverEvent={handleSpinOverEvent}
+                            handleRemoteConcludeError={handleRemoteConcludeError}
+                            handleWinnerFound={handleWinnerFound}
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -1163,7 +1269,10 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteCancelEvent={handleRemoteCancelEvent}
                             handleTaskerFound={handleTaskerFound}
                             handleRemoteError={handleRemoteError}
-                            handleSpinOverEvent={handleSpinOverEvent}/>
+                            handleSpinOverEvent={handleSpinOverEvent}
+                            handleRemoteConcludeError={handleRemoteConcludeError}
+                            handleWinnerFound={handleWinnerFound}
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
                             :
                             <VideoPlayerDisplay />
                             }

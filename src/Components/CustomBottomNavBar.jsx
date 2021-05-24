@@ -45,7 +45,7 @@ function CustomBottomNavBar({navValue, handleBottomNavChange}) {
             >
                 <BottomNavigationAction label="Help" value="help" icon={<HelpIcon />}/>
                 <BottomNavigationAction label="Game" value="game" className={classes.iconBottomNav} icon={<SportsEsportsIcon />}/>
-                <BottomNavigationAction label="Settings" value="settings" icon={<SettingsIcon />}/>
+                <BottomNavigationAction label="Options" value="options" icon={<SettingsIcon />}/>
             </BottomNavigation>
         </ThemeProvider>
     );
