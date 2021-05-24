@@ -1,6 +1,0 @@
-
-
-
-* linear-gradient(to right, #200122, #6f0000) *
-
-* linear-gradient(to right, #000428, #004e92) *

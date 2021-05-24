@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme)=>{
     };
 });
 
-function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerformerFound, handleRemoteCancelEvent, handleTaskerFound, handleRemoteError, handleSpinOverEvent, side, handleRemoteConcludeError, handleRemoteConcludeGame, handleWinnerFound}) {
+function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerformerFound, handleRemoteCancelEvent, handleTaskerFound, handleRemoteError, handleSpinOverEvent, side, handleRemoteConcludeError, handleRemoteConcludeGame, handleWinnerFound, handleEmojiRequest}) {
 
     const classes = useStyles();
 
@@ -154,6 +154,8 @@ function VideoPlayer({participant, local=false, handleRemoteSpin, handlePerforme
             case 'conclude': handleRemoteConcludeGame(msg);
             break;
             case 'winner_found': handleWinnerFound(msg, params);
+            break;
+            case 'emoji_send': handleEmojiRequest(msg, params[0], params[1]);
             break;
         }
     }

@@ -1,5 +1,4 @@
-import React, { useCallback, useState } from 'react';
-import Footer from '../Components/Footer';
+import React, { useState } from 'react';
 import Header from '../Components/Header';
 import CreateRoom from './CreateRoom';
 import JoinRoom from './JoinRoom';
@@ -42,7 +41,7 @@ function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreate
         render =  (
             <>
             {/* Header */}
-            <Header />
+            {/* <Header /> */}
 
             <CreateRoom 
             handleClick={handleClick}
@@ -66,7 +65,7 @@ function Start({handleNameChange, handleRoomChange, handleJoinRoom, handleCreate
         render =  (
             <>
             {/* Header */}
-            <Header />
+            {/* <Header /> */}
 
             <JoinRoom 
             handleClick={handleClick}

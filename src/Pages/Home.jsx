@@ -152,17 +152,6 @@ const rotateVariant = {
     }
 };
 
-// button bar animations
-const buttonBarVariant = {
-    initial: {opacity: 0},
-    animate: {
-        opacity: 1,
-        transition: {
-            duration: 0.5
-        }
-    }
-};
-
 
 // stores performer name in task_giver session
 let performer_identity = "";
@@ -214,6 +203,9 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const [concluding, setConcluding] = useState(false);
     // show emoji
     const [emoji, setEmoji] = useState("");
+    // emoji cooldown
+    // when true send emoji will be disabled
+    const [emojiCooldown, setEmojiCooldown] = useState(false);
 
     // to be run after spinning is completed
     const cleanUp = async ()=>{
@@ -357,12 +349,17 @@ function Home({roomName, room, handleLogout, initial_score}) {
         setNotifMsg(msg);
         setNotifType(type);
         setOpenNotif(true);
-    }
+    };
     // handle spin event for rest
     const handleRemoteSpin = async (msg, params)=>{
         handleOpenNotif(`${params} ${msg}`, "success");
         setSpinning(true);
         setBarMsg("Spinning...");
+    };
+
+    // emoji cooldown hadler
+    const handleEmojiCooldown = (value)=>{
+        setEmojiCooldown(value);
     }
 
     // hanle spin event for spinner
@@ -671,11 +668,18 @@ function Home({roomName, room, handleLogout, initial_score}) {
         );
     };
 
-    const handleEmojiRequest = (emoji)=>{
-        setEmoji(emoji);
-        setTimeout(()=>{
-            setEmoji("");
-        }, 6000)
+    const handleEmojiRequest = (msg, emojiValue, reciever)=>{
+        if(reciever === room.localParticipant.identity)
+        {
+            if(!emoji)
+            {
+                setEmoji(emojiValue);
+                setTimeout(()=>{
+                    setEmoji("");
+                }, 6000);
+                handleOpenNotif(msg, "success");
+            }
+        }
     }
 
     const handleBottomNavChange = (event, newValue)=>{
@@ -1005,7 +1009,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
             )
         else if(navValue === "options")
             return (
-                <OptionsView sendMessage={sendMessage} localParticipantIdentity={room.localParticipant.identity} concluding={concluding} spinning={spinning} handleEmojiRequest={handleEmojiRequest}/>
+                <OptionsView sendMessage={sendMessage} localParticipantIdentity={room.localParticipant.identity} concluding={concluding} spinning={spinning} handleEmojiRequest={handleEmojiRequest} participants={participants} handleOpenNotif={handleOpenNotif} emojiCooldown={emojiCooldown} handleEmojiCooldown={handleEmojiCooldown}/>
             );
     }
 
@@ -1129,6 +1133,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteConcludeError={handleRemoteConcludeError}
                             handleWinnerFound={handleWinnerFound}
                             handleRemoteConcludeGame={handleRemoteConcludeGame}
+                            handleEmojiRequest={handleEmojiRequest}
                             />
                         </Grid>
 
@@ -1146,7 +1151,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             side="right"
                             handleRemoteConcludeError={handleRemoteConcludeError}
                             handleWinnerFound={handleWinnerFound}
-                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}
+                            handleEmojiRequest={handleEmojiRequest}/>
                             :
                             <VideoPlayerDisplay side="right"/>
                             }
@@ -1176,7 +1182,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             side="left"
                             handleRemoteConcludeError={handleRemoteConcludeError}
                             handleWinnerFound={handleWinnerFound}
-                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}
+                            handleEmojiRequest={handleEmojiRequest}/>
                             :
                             <VideoPlayerDisplay side="left"/>
                             }
@@ -1196,7 +1203,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             side="right"
                             handleRemoteConcludeError={handleRemoteConcludeError}
                             handleWinnerFound={handleWinnerFound}
-                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}
+                            handleEmojiRequest={handleEmojiRequest}/>
                             :
                             <VideoPlayerDisplay side="right"/>
                             }
@@ -1229,6 +1237,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleRemoteConcludeError={handleRemoteConcludeError}
                             handleWinnerFound={handleWinnerFound}
                             handleRemoteConcludeGame={handleRemoteConcludeGame}
+                            handleEmojiRequest={handleEmojiRequest}
                             />
                         </Grid>
 
@@ -1245,7 +1254,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleSpinOverEvent={handleSpinOverEvent}
                             handleRemoteConcludeError={handleRemoteConcludeError}
                             handleWinnerFound={handleWinnerFound}
-                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}
+                            handleEmojiRequest={handleEmojiRequest}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -1264,7 +1274,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleSpinOverEvent={handleSpinOverEvent}
                             handleRemoteConcludeError={handleRemoteConcludeError}
                             handleWinnerFound={handleWinnerFound}
-                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}
+                            handleEmojiRequest={handleEmojiRequest}/>
                             :
                             <VideoPlayerDisplay />
                             }
@@ -1283,7 +1294,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             handleSpinOverEvent={handleSpinOverEvent}
                             handleRemoteConcludeError={handleRemoteConcludeError}
                             handleWinnerFound={handleWinnerFound}
-                            handleRemoteConcludeGame={handleRemoteConcludeGame}/>
+                            handleRemoteConcludeGame={handleRemoteConcludeGame}
+                            handleEmojiRequest={handleEmojiRequest}/>
                             :
                             <VideoPlayerDisplay />
                             }
