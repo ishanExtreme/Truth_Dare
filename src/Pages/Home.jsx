@@ -41,6 +41,7 @@ import colors from '../config/colors';
 import CustomBottomNavBar from '../Components/CustomBottomNavBar';
 import HelpView from '../Components/HelpView';
 import OptionsView from '../Components/OptionsView';
+import Emoji from '../Components/Emoji';
 
 // for snackbar
 function Alert(props) {
@@ -211,6 +212,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const [scoreLoading, setScoreLoading] = useState(false);
     // conclude loading
     const [concluding, setConcluding] = useState(false);
+    // show emoji
+    const [emoji, setEmoji] = useState("");
 
     // to be run after spinning is completed
     const cleanUp = async ()=>{
@@ -289,6 +292,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
         };
 
     }, [room]);
+
 
     const classes = useStyles();
 
@@ -667,6 +671,13 @@ function Home({roomName, room, handleLogout, initial_score}) {
         );
     };
 
+    const handleEmojiRequest = (emoji)=>{
+        setEmoji(emoji);
+        setTimeout(()=>{
+            setEmoji("");
+        }, 6000)
+    }
+
     const handleBottomNavChange = (event, newValue)=>{
         setNavValue(newValue);
     }
@@ -994,7 +1005,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
             )
         else if(navValue === "options")
             return (
-                <OptionsView sendMessage={sendMessage} localParticipantIdentity={room.localParticipant.identity} concluding={concluding}/>
+                <OptionsView sendMessage={sendMessage} localParticipantIdentity={room.localParticipant.identity} concluding={concluding} spinning={spinning} handleEmojiRequest={handleEmojiRequest}/>
             );
     }
 
@@ -1035,7 +1046,8 @@ function Home({roomName, room, handleLogout, initial_score}) {
                 OPEN
             </Fab>}          
             {/* Show button end */}
-
+            {emoji&&<Emoji length={20} emoji={emoji}/>}
+            
             {/* Main Container */}
             <Grid
             container
@@ -1095,7 +1107,6 @@ function Home({roomName, room, handleLogout, initial_score}) {
                     
                 </Grid>
                 {/* Detail Row End*/}
-
                 {/* Desktop View Implementation */}
                 {/* Video Player Pair one */}
                 <Hidden lgDown>
@@ -1283,8 +1294,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
                     
                 </Hidden>
                 {/* Mobile View End */}
-                    
-                
+               
                 <Slide
                 direction="up"
                 in={expand}

@@ -25,7 +25,7 @@ const theme = createMuiTheme({
     }
 });
 
-function OptionsView({sendMessage, localParticipantIdentity, concluding}) {
+function OptionsView({sendMessage, localParticipantIdentity, concluding, spinning, handleEmojiRequest}) {
 
     const classes = useStyles();
     
@@ -42,6 +42,8 @@ function OptionsView({sendMessage, localParticipantIdentity, concluding}) {
             color="secondary"
             size="large"
             style={{marginBottom: '20px'}}
+            // disable the button while spinning is going on
+            disabled={spinning}
             endIcon={<TouchAppOutlinedIcon />}
             >
                 Conclude Game
@@ -54,7 +56,7 @@ function OptionsView({sendMessage, localParticipantIdentity, concluding}) {
         {/* Send Stickers button */}
         <Grid item>
             <Button
-            // onClick={()=>window.open("https://github.com/ishanExtreme")}
+            onClick={()=>handleEmojiRequest("😠")}
             variant="outlined" 
             color="secondary"
             size="large"
