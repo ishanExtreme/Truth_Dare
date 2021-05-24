@@ -16,10 +16,11 @@ const useStyles = makeStyles((theme)=>{
         bottomNav: {
             width: 500,
             [theme.breakpoints.down('xs')]: {
-               width: 350
+               width: 300
             },
             marginTop: theme.spacing(3),
-            backgroundColor: "transparent"
+            backgroundColor: "transparent",
+            // marginBottom: theme.spacing(3)
         },
         
     };

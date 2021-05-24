@@ -104,7 +104,7 @@ const useStyles = makeStyles((theme)=>{
         snackNotif: {
             maxWidth: '600px',
             [theme.breakpoints.down('md')]: {
-                width: '400px',
+                width: '350px',
             },
         },
         spinner: {

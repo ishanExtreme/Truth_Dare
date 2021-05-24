@@ -191,7 +191,7 @@ function OptionsView({sendMessage, localParticipantIdentity, concluding, spinnin
 
                 <Grid item>
 
-                    <Typography variant="h6" color="secondary">
+                    <Typography variant="subtitle2" color="secondary">
                         You Can Send Only One Sticker Per 30 Seconds
                     </Typography>
 
