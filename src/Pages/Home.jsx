@@ -20,6 +20,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Radio from '@material-ui/core/Radio';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
 import Slide from '@material-ui/core/Slide';
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import ThreeSixtyIcon from '@material-ui/icons/ThreeSixty';
@@ -29,6 +31,7 @@ import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import ExpandLessOutlinedIcon from '@material-ui/icons/ExpandLessOutlined';
 import ExpandMoreOutlinedIcon from '@material-ui/icons/ExpandMoreOutlined';
 import GamepadOutlinedIcon from '@material-ui/icons/GamepadOutlined';
+import EmojiObjectsOutlinedIcon from '@material-ui/icons/EmojiObjectsOutlined';
 
 import './home.css';
 import VideoPlayer from '../Components/VideoPlayer';
@@ -37,6 +40,7 @@ import RuleModal from '../Components/RuleModal';
 
 import useApi from '../hooks/useApi';
 import gameApi from '../api/game';
+import suggestionApi from '../api/suggestion';
 import colors from '../config/colors';
 import CustomBottomNavBar from '../Components/CustomBottomNavBar';
 import HelpView from '../Components/HelpView';
@@ -89,7 +93,8 @@ const useStyles = makeStyles((theme)=>{
             marginBottom: theme.spacing(3),
         },
         performSubmitButton: {
-            margin: theme.spacing(1, 5, 0, 0),
+            marginTop: theme.spacing(3),
+            marginLeft: theme.spacing(6)
         },
         progress: {
             marginTop: theme.spacing(3),
@@ -126,6 +131,12 @@ const useStyles = makeStyles((theme)=>{
             position: 'fixed',
             zIndex: 1
         },
+        suggestionContainer: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column"
+        }
         // mobileContainer: {
 
         // }
@@ -156,6 +167,11 @@ const rotateVariant = {
 // stores performer name in task_giver session
 let performer_identity = "";
 
+// stores task type of the task
+let taskType = "";
+// stores category of the task
+let taskCategory = "";
+
 // stores score of participants
 let participantScoresValue = [];
 
@@ -184,7 +200,11 @@ function Home({roomName, room, handleLogout, initial_score}) {
     // performer choosen task
     const [taskValue, setTaskValue] = useState('');
     // form helper
-    const [helperText, setHelperText] = useState("Lets go for dare...")
+    const [helperText, setHelperText] = useState("Lets go for dare...");
+    // select type helper
+    const [typeHelperText, setTypeHelperText] = useState("What type of truth/dare you want");
+    // category of truth/dare
+    const [categoryTruthDare, setCategoryTruthDare] = useState("");
     // when user start performing task
     const [performingTask, setPerformingTask] = useState(false);
     // while assigning score
@@ -206,6 +226,12 @@ function Home({roomName, room, handleLogout, initial_score}) {
     // emoji cooldown
     // when true send emoji will be disabled
     const [emojiCooldown, setEmojiCooldown] = useState(false);
+    // suggestion window toogle
+    const [showSuggestion, setShowSuggestion] = useState(false);
+    // suggestion loading
+    const [suggestionLoading, setSuggestionLoading] = useState(false);
+    // suggestion value
+    const [suggestionValue, setSuggestionValue] = useState("");
 
     // to be run after spinning is completed
     const cleanUp = async ()=>{
@@ -217,9 +243,14 @@ function Home({roomName, room, handleLogout, initial_score}) {
         setPerformerError(false);
         setTaskValue('');
         setHelperText("Lets go for dare...");
+        setCategoryTruthDare("");
+        setTypeHelperText("What type of truth/dare you want");
         setPerformingTask(false);
         performer_identity = "";
+        taskType = "";
+        taskCategory = "";
         setAssigningScore(false);
+        setSuggestionValue("");
 
         await spinOverApi.request({roomId: room.sid});
 
@@ -295,6 +326,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
     const spinOverApi = useApi(gameApi.spin_over);
     const getScoresApi = useApi(gameApi.get_scores);
     const getWinnersApi = useApi(gameApi.get_winners);
+    const getRandomSuggestion = useApi(suggestionApi.get_random);
 
     // format of instruction codes are=>
     // #code%params*msg
@@ -430,14 +462,16 @@ function Home({roomName, room, handleLogout, initial_score}) {
             setBarMsg(msg);
     }
 
-    const handleTaskerFound = (msg, tasker, performer, task)=>{
+    const handleTaskerFound = (msg, tasker, performer, task, category)=>{
 
         if(tasker === room.localParticipant.identity)
         {
             handleOpenNotif(`You are choosen to assign ${task.toUpperCase()} to ${performer}`, "info")
-            setTaskGiver(true);
-
             performer_identity = performer;
+            taskType = task;
+            taskCategory = category;
+
+            setTaskGiver(true);
         }
         else
             setBarMsg(msg);
@@ -579,10 +613,16 @@ function Home({roomName, room, handleLogout, initial_score}) {
         setPerformerError(false);
     }
 
+    const handleCategoryChange = (event)=>{
+        setPerformerError(false);
+        setCategoryTruthDare(event.target.value);
+        setTypeHelperText("What type of truth/dare you want");
+    };
+
     const handleTaskSubmit = async (event)=>{
         event.preventDefault();
 
-        if(taskValue)
+        if(taskValue && categoryTruthDare)
         {
 
             if(taskValue === "truth")
@@ -626,12 +666,15 @@ function Home({roomName, room, handleLogout, initial_score}) {
             }
 
             
-            sendMessage(`${result.data.participant} will assign and judge the task performed by ${room.localParticipant.identity}. Waiting for task to complete`, "tasker_found", `${result.data.participant},${room.localParticipant.identity},${taskValue}`);
+            sendMessage(`${result.data.participant} will assign and judge the task performed by ${room.localParticipant.identity}. Waiting for task to complete`, "tasker_found", `${result.data.participant},${room.localParticipant.identity},${taskValue},${categoryTruthDare}`);
 
         }
         else
         {
-            setHelperText("Please select an option");
+            if(!taskValue)
+                setHelperText("Please select an option");
+            if(!categoryTruthDare)
+                setTypeHelperText("Please select an option");
             setPerformerError(true);
         }
 
@@ -686,11 +729,131 @@ function Home({roomName, room, handleLogout, initial_score}) {
         setNavValue(newValue);
     }
 
+    const handleShowSuggestion = async (switcher=false)=>{
+        // displays suggestion windows
+        if(switcher) setShowSuggestion(true);
+        // displays loading screen
+        setSuggestionLoading(true);
+
+        const result = await getRandomSuggestion.request({
+            type: taskType,
+            category: taskCategory
+        });
+
+        if(!result.ok)
+        {
+            if(result.data) {
+                // set error notif
+                handleOpenNotif(result.data.error, 'error');
+            }
+            else {
+                // set error notif
+                handleOpenNotif("An unexpected error occurred.", 'error');
+            }
+            return;
+        }
+
+        setSuggestionValue(result.data.suggestion);
+        setSuggestionLoading(false);
+
+
+    };
+
+    const RenderTaskGiverView = ()=>{
+        return (
+            <>
+            {!showSuggestion?
+            <>
+            {
+                assigningScore?
+                <CircularProgress color="prmary" className={classes.progressTasker}/>
+                :
+                <>
+                <Grid item>
+
+                    <Button
+                    onClick={()=>handleShowSuggestion(true)}
+                    variant="outlined" 
+                    color="primary"
+                    size="large"
+                    endIcon={<EmojiObjectsOutlinedIcon />}
+                    style={{marginLeft: '100px', marginBottom: '30px'}}
+                    >   
+                    Show Suggestions
+                    </Button>
+                    <br/>
+                    <ButtonGroup>
+
+                        <Button
+                        onClick={()=> handleScoreUpdate(true)}
+                        variant="outlined" 
+                        color="primary"
+                        size="large"
+                        endIcon={<AssignmentTurnedInOutlinedIcon />}
+                        >   
+                        Task Completed
+                        </Button>
+
+                        <Button
+                        onClick={()=> handleScoreUpdate(false)}
+                        variant="outlined" 
+                        color="primary"
+                        size="large"
+                        endIcon={<CancelOutlinedIcon />}
+                        >   
+                        Task Not Completed
+                        </Button>
+                    </ButtonGroup>
+                </Grid>
+                </>
+            }
+            </>
+            :
+            <div className={classes.suggestionContainer}>
+            <Typography color="primary" variant="h6" style={{marginBottom: '30px'}}>Category:{taskCategory}</Typography>
+            {suggestionLoading?
+            <CircularProgress color="prmary"/>
+            :
+            <>
+            <Typography color="secondary" variant="h6" style={{marginBottom: '30px'}}>{suggestionValue}</Typography>
+            <Button
+            onClick={handleShowSuggestion}
+            variant="outlined" 
+            color="primary"
+            size="large"
+            style={{marginBottom: '40px'}}
+            >   
+            Next Suggestion
+            </Button>
+            
+            </>
+            }
+
+            <Button
+            onClick={()=>setShowSuggestion(false)}
+            variant="outlined" 
+            color="secondary"
+            size="large"
+            >   
+            Back
+            </Button>
+            </div>
+            }
+            
+            </>
+                    
+            );
+    }
+
     const RenderSpinning = ()=>{
 
         if(performer)
 
             return (
+                <>
+                {performingTask?
+                <Typography variant="h6" color="secondary">Complete Your Task!!!</Typography>
+                :
                 <form onSubmit={handleTaskSubmit}>
                     <FormControl component="fieldset" error={performerError} className={classes.radioOption}>
                         <FormLabel component="legend">Choose Your Task Type</FormLabel>
@@ -700,87 +863,47 @@ function Home({roomName, room, handleLogout, initial_score}) {
                             <FormControlLabel value="dare" control={<Radio />} label="Dare 😲"/>
                         </RadioGroup>
                         <FormHelperText>{helperText}</FormHelperText>
-                        {
-                            performingTask?
-                            <CircularProgress color="prmary" className={classes.progress}/>
-                            :
-                            <Button type="submit" variant="outlined" color="primary" className={classes.performSubmitButton}>
-                            Perform Task
-                            </Button>
-                        }
-                        
+
                     </FormControl>
+
+                    <br/>
+
+                    <FormControl className={classes.radioOption} error={performerError}>
+                        <InputLabel htmlFor="category-select">Select Category</InputLabel>
+                        <Select 
+                        native
+                        value={categoryTruthDare}
+                        onChange={handleCategoryChange}
+                        inputProps={{
+                            name: "category",
+                            id: "category-select"
+                        }}
+                        >
+                            <option aria-label="None" value=""/>
+                            <option key="kids" value="kids">Kids</option>
+                            <option key="friends" value="friends">Friends</option>
+                            <option key="couples" value="couples">Couples</option>
+                            <option key="close_couples" value="close_couples">Close Couples 🔥🔥</option>
+                        </Select>
+                        <FormHelperText>{typeHelperText}</FormHelperText>
+                    </FormControl>
+
+                    <br/>       
+                   
+                    <Button type="submit" variant="outlined" color="primary" className={classes.performSubmitButton}>
+                    Perform Task
+                    </Button>
+                    
                 </form>
+                }
+                </>
             );
 
             else if(taskGiver)
-
                 return (
-                <>
-                {
-                    assigningScore?
-                    <CircularProgress color="prmary" className={classes.progressTasker}/>
-                    :
-                    <>
-                    <Hidden xsDown>
-                    <Grid item>
-                        <ButtonGroup>
-                            <Button
-                            onClick={()=> handleScoreUpdate(true)}
-                            variant="outlined" 
-                            color="primary"
-                            size="large"
-                            endIcon={<AssignmentTurnedInOutlinedIcon />}
-                            >   
-                            Task Completed
-                            </Button>
-
-                            <Button
-                            onClick={()=> handleScoreUpdate(false)}
-                            variant="outlined" 
-                            color="primary"
-                            size="large"
-                            endIcon={<CancelOutlinedIcon />}
-                            >   
-                            Task Not Completed
-                            </Button>
-                        </ButtonGroup>
-                    </Grid>
-                    </Hidden>
-
-
-                    <Hidden smUp>
-
-                    <Grid item>
-                        <ButtonGroup>
-                            <Button
-                            onClick={()=> handleScoreUpdate(true)}
-                            variant="outlined" 
-                            color="primary"
-                            size="large"
-                            endIcon={<AssignmentTurnedInOutlinedIcon />}
-                            >   
-                            Task Completed
-                            </Button>
-
-                            <Button
-                            onClick={()=> handleScoreUpdate(false)}
-                            variant="outlined" 
-                            color="primary"
-                            size="large"
-                            endIcon={<CancelOutlinedIcon />}
-                            >   
-                            Task Not Completed
-                            </Button>
-                        </ButtonGroup>
-                    </Grid>
-                    </Hidden>
-                    </>
-                }
+                    <RenderTaskGiverView />
+                )
                 
-                </>
-                        
-                );
             else 
 
                 return (
