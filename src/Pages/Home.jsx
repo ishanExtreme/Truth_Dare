@@ -225,24 +225,24 @@ function Home({roomName, room, handleLogout, initial_score}) {
 
     }
 
-    const handleTimeoutRemove = ()=>{
+    // const handleTimeoutRemove = ()=>{
 
-        // logout if single participant is present in the room
-        // send notif after 3 minutes
-        // disconnect after another 2 minutes
-        if(room.participants.size === 0)
-        {
-            setTimeout(()=>{
-                if(room.participants.size === 0)
-                    handleOpenNotif('Invite some players or the room will be "DISCONNECTED" in another 2 minutes...', "error")
-                setTimeout(()=>{
-                    if(room.participants.size === 0) handleLogout();
+    //     // logout if single participant is present in the room
+    //     // send notif after 3 minutes
+    //     // disconnect after another 2 minutes
+    //     if(room.participants.size === 0)
+    //     {
+    //         setTimeout(()=>{
+    //             if(room.participants.size === 0)
+    //                 handleOpenNotif('Invite some players or the room will be "DISCONNECTED" in another 2 minutes...', "error")
+    //             setTimeout(()=>{
+    //                 if(room.participants.size === 0) handleLogout();
                         
-                }, 120000)
-            }, 180000)
-        }
+    //             }, 120000)
+    //         }, 180000)
+    //     }
 
-    }
+    // }
 
     useEffect(()=> {
         
@@ -263,7 +263,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
             // notify when participant leaves
             handleOpenNotif(`${participant.identity} left`, "warning");
             // when participant disconnect
-            handleTimeoutRemove();
+            // handleTimeoutRemove();
         };
 
         
@@ -275,7 +275,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
         room.participants.forEach(participantConnected);
 
         // for the first when joined
-        handleTimeoutRemove();
+        // handleTimeoutRemove();
 
         return ()=> {
             // ------- Not Known --------
