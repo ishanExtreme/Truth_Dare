@@ -94,23 +94,17 @@ const useStyles = makeStyles((theme)=>{
         },
         performSubmitButton: {
             marginTop: theme.spacing(3),
-            marginLeft: theme.spacing(6)
+            // marginLeft: theme.spacing(6)
         },
         progress: {
             marginTop: theme.spacing(3),
             marginLeft: theme.spacing(5)
         },
         progressTasker: {
-            marginLeft: theme.spacing(1)
+            marginLeft: theme.spacing(1),
         },
         radioOption: {
             marginLeft: theme.spacing(5)
-        },
-        snackNotif: {
-            maxWidth: '600px',
-            [theme.breakpoints.down('md')]: {
-                width: '350px',
-            },
         },
         spinner: {
             display: 'flex',
@@ -136,10 +130,18 @@ const useStyles = makeStyles((theme)=>{
             justifyContent: "center",
             alignItems: "center",
             flexDirection: "column"
+        },
+        suggestionButtonContainer: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
+        },
+        formContainer: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column"
         }
-        // mobileContainer: {
-
-        // }
 
         
     };
@@ -735,25 +737,34 @@ function Home({roomName, room, handleLogout, initial_score}) {
         // displays loading screen
         setSuggestionLoading(true);
 
-        const result = await getRandomSuggestion.request({
-            type: taskType,
-            category: taskCategory
-        });
-
-        if(!result.ok)
+        if(taskType !== "stare")
         {
-            if(result.data) {
-                // set error notif
-                handleOpenNotif(result.data.error, 'error');
+            const result = await getRandomSuggestion.request({
+                type: taskType,
+                category: taskCategory
+            });
+
+            if(!result.ok)
+            {
+                if(result.data) {
+                    // set error notif
+                    handleOpenNotif(result.data.error, 'error');
+                }
+                else {
+                    // set error notif
+                    handleOpenNotif("An unexpected error occurred.", 'error');
+                }
+                setSuggestionLoading(false);
+                return;
             }
-            else {
-                // set error notif
-                handleOpenNotif("An unexpected error occurred.", 'error');
-            }
-            return;
+
+            setSuggestionValue(result.data.suggestion);
+        }
+        else
+        {
+            setSuggestionValue("Ask the Performer to stare challenge someone");
         }
 
-        setSuggestionValue(result.data.suggestion);
         setSuggestionLoading(false);
 
 
@@ -770,17 +781,17 @@ function Home({roomName, room, handleLogout, initial_score}) {
                 :
                 <>
                 <Grid item>
-
-                    <Button
-                    onClick={()=>handleShowSuggestion(true)}
-                    variant="outlined" 
-                    color="primary"
-                    size="large"
-                    endIcon={<EmojiObjectsOutlinedIcon />}
-                    style={{marginLeft: '100px', marginBottom: '30px'}}
-                    >   
-                    Show Suggestions
-                    </Button>
+                    <div className={classes.suggestionButtonContainer}>
+                        <Button
+                        onClick={()=>handleShowSuggestion(true)}
+                        variant="outlined" 
+                        color="primary"
+                        size="large"
+                        endIcon={<EmojiObjectsOutlinedIcon />}
+                        >   
+                        Show Suggestions
+                        </Button>
+                    </div>
                     <br/>
                     <ButtonGroup>
 
@@ -854,7 +865,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
                 {performingTask?
                 <Typography variant="h6" color="secondary">Complete Your Task!!!</Typography>
                 :
-                <form onSubmit={handleTaskSubmit}>
+                <form onSubmit={handleTaskSubmit} className={classes.formContainer}>
                     <FormControl component="fieldset" error={performerError} className={classes.radioOption}>
                         <FormLabel component="legend">Choose Your Task Type</FormLabel>
                         <RadioGroup aria-label="choose_task" name="choose_task" value={taskValue} onChange={handleRadioChange}>
@@ -1151,7 +1162,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
             open={openNotif} 
             autoHideDuration={120000} 
             onClose={handleNotifClose}
-            className={classes.snackNotif}
+            width={1}
             >
 
                 <Alert onClose={handleNotifClose} severity={notifType}>
