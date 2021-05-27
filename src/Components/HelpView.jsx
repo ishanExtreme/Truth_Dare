@@ -61,7 +61,7 @@ function HelpView({handleModalOpen}) {
             </Grid>
 
             {/* Donate Button */}
-            <Grid item>
+            {/* <Grid item>
                 <a 
                 onClick={()=>window.open("https://www.buymeacoffee.com/ishanExtreme")}
                 className={classes.coffeeButton}
@@ -69,7 +69,7 @@ function HelpView({handleModalOpen}) {
                     <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=ishanExtreme&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff"/>
 
                 </a>
-            </Grid>
+            </Grid> */}
 
         </ThemeProvider>
     );

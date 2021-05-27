@@ -252,6 +252,7 @@ function Home({roomName, room, handleLogout, initial_score}) {
         taskType = "";
         taskCategory = "";
         setAssigningScore(false);
+        setShowSuggestion(false);
         setSuggestionValue("");
 
         await spinOverApi.request({roomId: room.sid});
