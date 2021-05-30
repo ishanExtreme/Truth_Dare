@@ -31,9 +31,8 @@ const useStyles = makeStyles((theme)=> {
     },
 
     modalStyle:{
-        [theme.breakpoints.down('sm')]: {         
-            overflow:'scroll',
-        },
+                      
+        overflow:'scroll',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -98,16 +97,28 @@ function RuleModal({modalOpen, handleModalClose}) {
                 <br/>
                 {/* step 4 */}
                 <Typography variant="subtitle2" color="secondary">
-                    4. "Performer" will now choose a "task type" and from rest of
+                    4. "Performer" will now choose a "task type" and "task category". From rest of
                     the players a "Task Giver" is choosen who gives task and assigns score
                     to the "Perfomer".
                 </Typography>
                 <br/>
                 {/* step 5 */}
                 <Typography variant="subtitle2" color="secondary">
-                    5. After "Performer" finishes the assigned task now "Task Giver"
-                    whill click on either "Task Completed"(awards 1 score to "Performer")
+                    5. "Task Giver" will get the suggestions based on the "task category" choosen by
+                    the "Performer".
+                </Typography>
+                <br/>
+                {/* step 6 */}
+                <Typography variant="subtitle2" color="secondary">
+                    6. After "Performer" finishes the assigned task now "Task Giver"
+                    will click on either "Task Completed"(awards 1 score to "Performer")
                     or "Task Not Completed"(awards 0 score to "Performer").
+                </Typography>
+                <br/>
+                {/* step 7 */}
+                <Typography variant="subtitle2" color="secondary">
+                    7. To finish the whole game(after playing several rounds), any "one" can press
+                    the "Conclude" button to "get the winners" and "reset scores to 0(zero)" 
                 </Typography>
                 <br/>
                 <br/>
