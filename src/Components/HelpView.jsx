@@ -4,21 +4,21 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import PermContactCalendarOutlinedIcon from '@material-ui/icons/PermContactCalendarOutlined';
 
-import { makeStyles, createMuiTheme, ThemeProvider } from '@material-ui/core';
+import {createMuiTheme, ThemeProvider } from '@material-ui/core';
 
-const useStyles = makeStyles((theme)=>{
-    return {
+// const useStyles = makeStyles((theme)=>{
+//     return {
 
-        coffeeButton: {
-            marginRight: theme.spacing(30),
-            [theme.breakpoints.down('lg')]: {
-                marginRight: theme.spacing(0),
-            },
-            cursor: 'pointer'
+//         coffeeButton: {
+//             marginRight: theme.spacing(30),
+//             [theme.breakpoints.down('lg')]: {
+//                 marginRight: theme.spacing(0),
+//             },
+//             cursor: 'pointer'
 
-        }
-    };
-});
+//         }
+//     };
+// });
 
 const theme = createMuiTheme({
     palette: {
@@ -28,7 +28,6 @@ const theme = createMuiTheme({
 
 function HelpView({handleModalOpen}) {
 
-    const classes = useStyles();
 
     return (
         <ThemeProvider theme={theme}>

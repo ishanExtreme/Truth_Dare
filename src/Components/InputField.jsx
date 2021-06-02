@@ -2,15 +2,15 @@ import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { makeStyles, createMuiTheme, ThemeProvider } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core'
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import { blue, purple } from '@material-ui/core/colors';
+// import { blue, purple } from '@material-ui/core/colors';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
+// import FormHelperText from '@material-ui/core/FormHelperText';
 import Radio from '@material-ui/core/Radio';
 
 const useStyles = makeStyles((theme)=>{
@@ -35,12 +35,12 @@ const useStyles = makeStyles((theme)=>{
 })
 
 // Theme
-const theme = createMuiTheme({
-    palette: {
-        primary: purple,
-        secondary: blue
-    }
-})
+// const theme = createMuiTheme({
+//     palette: {
+//         primary: purple,
+//         secondary: blue
+//     }
+// })
 
 function InputField({label, handleSubmit, buttonLabel, 
     onNameChange, onRoomChange ,error, loading, isJoin, name, room, playersNumber, handleRadioChange}) {

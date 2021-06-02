@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme)=> {
         padding: 20,
         [theme.breakpoints.down('xs')]: {
             width: '300px',
-            marginTop: theme.spacing(75),
+            marginTop: theme.spacing(100),
         },
         [theme.breakpoints.between('sm', 'lg')]: {
             width: '900px',

@@ -3,10 +3,7 @@ import './font.css';
 import React from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import ToolBar from '@material-ui/core/Toolbar';
-// temp.
-import LocalCafeIcon from '@material-ui/icons/LocalCafe';
 
 import {makeStyles} from '@material-ui/core';
 import {motion} from 'framer-motion';
