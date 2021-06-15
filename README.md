@@ -57,7 +57,9 @@ To start the application.
 ### 🤝 Contributing
 > Contributions, issues and features requests are welcome!
 
-### License
+### ⚠️ License
+> GNU General Public License v3.0 or later <br/>
+> See [COPYING]() to see the full text.
 
 <h2 align='center'>
   Do star ⭐ the repo if you like the project
