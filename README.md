@@ -12,7 +12,7 @@
 This repository contains the "Front End" part. 
 </h3>
 
-[Swith To Backend Repo]()
+[Swith To Backend Repo](https://github.com/ishanExtreme/Truth_Dare-Backend)
 <br/>
 <br/>
 
@@ -59,7 +59,7 @@ To start the application.
 
 ### ⚠️ License
 > GNU General Public License v3.0 or later <br/>
-> See [COPYING]() to see the full text.
+> See [COPYING](https://github.com/ishanExtreme/Truth_Dare/blob/master/COPYING.txt) to see the full text.
 
 <h2 align='center'>
   Do star ⭐ the repo if you like the project
