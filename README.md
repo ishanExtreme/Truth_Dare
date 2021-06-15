@@ -44,6 +44,16 @@ This repository contains the "Front End" part.
 > 3. API'S: I have used **Twilio Programmable Video** and **DataTrack API**. Twilio Prorammable video is based on WebRTC and offers three type of rooms(actually four 🙄) "go", "peer-to-peer", "group". Among them "go" rooms are free and allow 2 participants at max to connect to a room. Get more information about twilio programmable video [here](https://www.twilio.com/docs/video/tutorials/basic-concepts).
 > 4. Cloud Service: MongoDB Atlas for databse and heroku for hosting
 
+### 🚀 Running Locally
+> This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). In the project directory, run the following commands:
+
+    npm i
+To install all the necessary requirements.
+    
+    npm start
+To start the application.
+
+
 ### 🤝 Contributing
 > Contributions, issues and features requests are welcome!
 
