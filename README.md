@@ -1,70 +1,69 @@
-# Getting Started with Create React App
+<h1 align="center">
+  Real Time "Truth Dare & Stare"
+</h1>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<h3 align="center">
+  "Spending Time With Friends Is The Best Way To Bring Smile"
+</h3>
+<br/>
+<br/>
 
-## Available Scripts
+<h3>
+This repository contains the "Front End" part. 
+</h3>
 
-In the project directory, you can run:
+[Swith To Backend Repo]()
+<br/>
+<br/>
 
-### `npm start`
+[Link To The Game](https://truthdarelive.me/)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+[Game Demo Video](https://youtu.be/rEMAhWLZoM0)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 💡 Idea
+> Truth Dare & Stare is a Web Application where users can play the famous Truth Dare and Stare game with video and audio chat with their friends, can send stickers and many more....
 
-### `npm test`
+### 🥅 Goal
+> Due to corona and lock down in many countries we are facing a serious mental health issues, specially the students who at this time enjoy the summer vacations with their friends are locked inside their houses. And the only thing we can do is to wait for the situation to improve. To contribute towards improving **mental health** I have made this game so that one can connect with their friends and enjoy, laugh and play with them(spending time with friends is the best way to bring smile).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 🤔 How To Play??
+> Just create a room and share the code with your friends and ask them to join the room, no downloads or signup required!!!.<br/>Other rules and notes and be found once inside the room by clicking "How To Play" button in help section.
+[Link To The Game](https://truthdarelive.me/)
 
-### `npm run build`
+### ✨ Some Features
+> 1. Video and audio chat.
+> 2. Select Room Size.
+> 3. Scores are saved when > disconnected.
+> 4. **Send Stickers**
+> 5. WebRTC based.
+> 6. ...
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 🧑‍💻 Tech Stack Used(MERN)
+> 1. Front End: front end is made using **React** and **Material-UI** for designing components and **Framer Motion** for animation and **Twilio SDK** for video chat.
+> 2. Back End: back end is REST based using **NodeJs** with **Express** and **MongoDB(mongoose)** for database. For logging **Log DNA** is used.
+> 3. API'S: I have used **Twilio Programmable Video** and **DataTrack API**. Twilio Prorammable video is based on WebRTC and offers three type of rooms(actually four 🙄) "go", "peer-to-peer", "group". Among them "go" rooms are free and allow 2 participants at max to connect to a room. Get more information about twilio programmable video [here](https://www.twilio.com/docs/video/tutorials/basic-concepts).
+> 4. Cloud Service: MongoDB Atlas for databse and heroku for hosting
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 🤝 Contributing
+> Contributions, issues and features requests are welcome!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### License
 
-### `npm run eject`
+<h2 align='center'>
+  Do star ⭐ the repo if you like the project
+</h2>
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+***
+<h2 align='center'>
+  Links
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  <p><a href="https://truthdarelive.me/">Game Link</a></p>
+  <p><a href="https://youtu.be/rEMAhWLZoM0">Game Demo Video</a></p>
+  <p><a href="https://dev.to/ishanextreme/real-time-truth-dare-stare-game-with-video-and-audio-chat-functionality-10ek">Dev.to Article</a></p>
+</h2>
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+***
+   
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
